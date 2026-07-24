@@ -152,38 +152,10 @@
     justify-content: center;
     flex-wrap: wrap;
     gap: 4px 10px;
-    /* Right padding reserves room for the "?" so the centered title never slides
-       under it. */
-    padding: 12px 34px 10px 0;
+    padding: 12px 0 10px;
     border-bottom: 1px solid var(--ink);
   }
 
-  /* Help "?" pinned to the masthead's right edge — jumps to the description at
-     the bottom without disturbing the centered title. */
-  .help-btn {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 26px;
-    height: 26px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--ink-3);
-    text-decoration: none;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    transition: color .13s, border-color .13s, background .13s;
-  }
-
-  .help-btn:hover {
-    color: var(--accent);
-    border-color: var(--accent);
-  }
 
   /* Title shares the subline's muted colour so the whole line reads as one. */
   h1 {
@@ -233,7 +205,13 @@
     gap: 8px;
     margin: 8px 0 0;
     border-bottom: 1px solid var(--line);
+    /* Fallback: if the four tabs can't fit, the row scrolls sideways rather than
+       wrapping a tab onto two lines or overflowing the page. */
+    overflow-x: auto;
+    scrollbar-width: none;
   }
+
+  .seasons-row::-webkit-scrollbar { display: none; }
 
   .seasons {
     display: flex;
@@ -291,6 +269,8 @@
   .saved-tab {
     margin-left: auto;
     color: var(--mid);
+    /* Star + label stay on one line so the tab never doubles its height. */
+    white-space: nowrap;
   }
 
   .saved-tab:hover { color: var(--mid); filter: brightness(1.12); }
@@ -298,6 +278,20 @@
   .saved-tab[aria-selected="true"] {
     color: var(--mid);
     border-bottom-color: var(--mid);
+  }
+
+  /* Help toggle — a compact "?" tab. Sits right of Išsaugoti; when pressed it
+     swaps the listing for the how-to text. */
+  .help-tab {
+    margin-left: 4px;
+    padding-left: 11px;
+    padding-right: 11px;
+    font-weight: 700;
+  }
+
+  .help-tab[aria-pressed="true"] {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
   }
 
   /* ---------- filters ---------- */
@@ -748,27 +742,19 @@
     border-radius: 12px;
   }
 
-  footer {
-    margin-top: 34px;
-    padding-top: 18px;
-    border-top: 1px solid var(--line);
-    font-size: 12.5px;
-    color: var(--ink-3);
-    line-height: 1.65;
-    max-width: 640px;
-    /* Clear the sticky header when jumped to via the "?" help link. */
-    scroll-margin-top: 160px;
+  /* Help view — toggled on by the "?" tab, shown in place of the listing. */
+  .help-panel {
+    margin-top: 18px;
+    font-size: 13.5px;
+    color: var(--ink-2);
+    line-height: 1.7;
+    max-width: 660px;
   }
 
-  footer p {
-    margin: 0 0 12px;
-  }
-
-  footer p:last-child { margin-bottom: 0; }
-
-  footer b { color: var(--ink-2); font-weight: 650; }
-
-  footer a { color: var(--accent); }
+  .help-panel p { margin: 0 0 14px; }
+  .help-panel p:last-child { margin-bottom: 0; }
+  .help-panel b { color: var(--ink); font-weight: 650; }
+  .help-panel a { color: var(--accent); }
 
   /* ---------- scroll FAB ---------- */
 
@@ -830,6 +816,12 @@
     .wrap { padding: 0 14px 40px; }
 
     .masthead { padding: 18px 0 12px; }
+
+    /* Tighten the tabs so all four (2 seasons + Išsaugoti + ?) fit one line. */
+    .seasons-row { gap: 4px; }
+    .season-tab { padding: 7px 8px; }
+    .saved-tab { padding-left: 8px; }
+    .help-tab { padding-left: 9px; padding-right: 9px; }
 
     /* Filters stay reachable while scrolling a long list on a phone. */
     .controls {
@@ -905,7 +897,6 @@
 <div class="wrap">
   <div class="topbar" id="topbar">
   <header class="masthead">
-    <a class="help-btn" id="helpBtn" href="#help" aria-label="Kaip naudotis" title="Kaip naudotis">?</a>
     <h1 id="pageTitle">Naudotos padangos</h1>
     <p class="subline">
       <span class="size">205/55R16</span>
@@ -919,6 +910,8 @@
     <button class="season-tab saved-tab" id="savedToggle" role="tab" aria-selected="false">
       <span aria-hidden="true">★</span> Išsaugoti<span class="n" id="savedCount">0</span>
     </button>
+    <button class="season-tab help-tab" id="helpToggle" aria-pressed="false"
+      aria-label="Kaip naudotis" title="Kaip naudotis">?</button>
   </div>
 
   <section class="controls" aria-label="Filtrai">
@@ -968,9 +961,7 @@
   </section>
   </div>
 
-  <div class="grid" id="grid"></div>
-
-  <footer id="help">
+  <section class="help-panel hidden" id="helpPanel" aria-label="Kaip naudotis">
     <p>
       <b>Kas tai.</b> Naudotų <b>205/55 R16</b> padangų skelbimai iš keturių LT
       portalų (Autoplius, Autogidas, Alio, Skelbiu), surinkti į vieną vietą ir
@@ -1015,7 +1006,9 @@
       kelių portalų sujungti į vieną. Duomenys surinkti <b>2026-07-24</b> ir
       gali būti pasenę — prieš važiuojant paskambinkite.
     </p>
-  </footer>
+  </section>
+
+  <div class="grid" id="grid"></div>
 </div>
 
 <div class="scroll-fab" id="scrollFab" aria-hidden="true">
@@ -1045,7 +1038,7 @@
   // to the new-only list when the toggle is pressed.
   // `saved` is a cross-season view: when on, the grid shows every saved ad from
   // every layer, ignoring the season/brand/source/qty filters.
-  const state = { season: firstWithData.id, qty: "all", source: "all", brand: "all", sort: "price", view: "used", saved: false };
+  const state = { season: firstWithData.id, qty: "all", source: "all", brand: "all", sort: "price", view: "used", saved: false, help: false };
 
   // Saved ads live in localStorage, keyed by ad URL (always present, unique).
   // Independent of the service-worker CACHE, so they survive app updates.
@@ -1316,15 +1309,24 @@
   function render() {
     renderSeasons();
     renderSaved();
+    el("helpToggle").setAttribute("aria-pressed", String(state.help));
+
+    // Help view replaces the listing with the how-to text.
+    el("helpPanel").classList.toggle("hidden", !state.help);
+    el("grid").classList.toggle("hidden", state.help);
+
     // The saved view spans all layers, so the season tabs and season-scoped
     // filters don't apply — hide the controls while it's on. Also hide them when
-    // the active layer is empty, so the page isn't a wall of zero-count chips.
-    document.querySelector(".controls").classList.toggle("hidden", state.saved || !ADS.length);
-    const list = visible();
-    renderChips();
-    renderFilterBadge();
-    renderGrid(list);
-    // Card count changed the page height — refresh the jump buttons' visibility.
+    // the active layer is empty, or while the help text is showing.
+    document.querySelector(".controls").classList.toggle("hidden", state.help || state.saved || !ADS.length);
+
+    if (!state.help) {
+      const list = visible();
+      renderChips();
+      renderFilterBadge();
+      renderGrid(list);
+    }
+    // Content height changed — refresh the jump buttons' visibility.
     if (typeof updateFab === "function") updateFab();
   }
 
@@ -1338,9 +1340,10 @@
   el("seasons").addEventListener("click", e => {
     const b = e.target.closest("[data-season]");
     if (!b) return;
-    // Clicking a season leaves the saved view and switches layer.
-    if (b.dataset.season === state.season && !state.saved) return;
+    // Clicking a season leaves the saved/help view and switches layer.
+    if (b.dataset.season === state.season && !state.saved && !state.help) return;
     state.saved = false;
+    state.help = false;
     state.season = b.dataset.season;
     ADS = LAYERS[state.season] || [];
     // Filters belong to the layer that was showing; reset them for the new one.
@@ -1411,7 +1414,16 @@
 
   el("savedToggle").addEventListener("click", () => {
     state.saved = !state.saved;
+    state.help = false;
     render();
+    window.scrollTo({ top: 0, behavior: "auto" });
+  });
+
+  // "?" toggles the help text in place of the listing.
+  el("helpToggle").addEventListener("click", () => {
+    state.help = !state.help;
+    render();
+    window.scrollTo({ top: 0, behavior: "auto" });
   });
 
   render();
