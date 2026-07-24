@@ -32,6 +32,13 @@
     --mid: #9a7113;
     --low: #b1502f;
     --shadow: 0 1px 2px rgba(16, 22, 27, .08), 0 4px 14px rgba(16, 22, 27, .05);
+
+    /* Per-season identity colour — drives card borders/glow and the active
+       season accent. Winter = blue, all-season = green. */
+    --winter: #2f7fe0;
+    --winter-glow: rgba(47, 127, 224, .28);
+    --allseason: #1f9d5c;
+    --allseason-glow: rgba(31, 157, 92, .26);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -49,6 +56,10 @@
       --mid: #e0b64a;
       --low: #e8836a;
       --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 20px rgba(0, 0, 0, .28);
+      --winter: #4d9dff;
+      --winter-glow: rgba(77, 157, 255, .38);
+      --allseason: #3fce8a;
+      --allseason-glow: rgba(63, 206, 138, .34);
     }
   }
 
@@ -66,6 +77,10 @@
     --mid: #e0b64a;
     --low: #e8836a;
     --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 20px rgba(0, 0, 0, .28);
+    --winter: #4d9dff;
+    --winter-glow: rgba(77, 157, 255, .38);
+    --allseason: #3fce8a;
+    --allseason-glow: rgba(63, 206, 138, .34);
   }
 
   :root[data-theme="light"] {
@@ -82,6 +97,10 @@
     --mid: #9a7113;
     --low: #b1502f;
     --shadow: 0 1px 2px rgba(16, 22, 27, .08), 0 4px 14px rgba(16, 22, 27, .05);
+    --winter: #2f7fe0;
+    --winter-glow: rgba(47, 127, 224, .28);
+    --allseason: #1f9d5c;
+    --allseason-glow: rgba(31, 157, 92, .26);
   }
 
   * { box-sizing: border-box; }
@@ -177,11 +196,19 @@
 
   /* ---------- season tabs ---------- */
 
+  /* Season tabs and the saved chip share one line; the underline runs under the
+     whole row, tabs left, chip pushed to the right. */
+  .seasons-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0 0;
+    border-bottom: 1px solid var(--line);
+  }
+
   .seasons {
     display: flex;
     gap: 4px;
-    margin: 8px 0 0;
-    border-bottom: 1px solid var(--line);
   }
 
   .season-tab {
@@ -206,6 +233,17 @@
     border-bottom-color: var(--accent);
   }
 
+  /* Selected season tab wears its own identity colour. */
+  .season-tab[data-season="winter"][aria-selected="true"] {
+    color: var(--winter);
+    border-bottom-color: var(--winter);
+  }
+
+  .season-tab[data-season="all-season"][aria-selected="true"] {
+    color: var(--allseason);
+    border-bottom-color: var(--allseason);
+  }
+
   .season-tab[data-empty="1"] { color: var(--ink-3); opacity: .7; }
 
   .season-tab .n {
@@ -214,6 +252,23 @@
     font-weight: 600;
     opacity: .65;
     margin-left: 6px;
+  }
+
+  /* ---------- saved tab ---------- */
+
+  /* A third tab on the season row, styled like the season tabs but pinned right
+     and tinted amber. Always visible (shows 0 when nothing saved). Spans all
+     season layers. */
+  .saved-tab {
+    margin-left: auto;
+    color: var(--mid);
+  }
+
+  .saved-tab:hover { color: var(--mid); filter: brightness(1.12); }
+
+  .saved-tab[aria-selected="true"] {
+    color: var(--mid);
+    border-bottom-color: var(--mid);
   }
 
   /* ---------- filters ---------- */
@@ -417,16 +472,57 @@
   }
 
   .card {
+    position: relative;
     background: var(--surface);
-    border: 1px solid var(--line);
+    /* Season identity: an evenly tinted border on all four sides + a soft
+       coloured glow. --sc / --scg are set per card from the ad's own season, so
+       a mixed saved list still colours each card correctly. */
+    border: 1px solid var(--sc, var(--line));
     border-radius: 12px;
     padding: 15px 16px 14px;
     display: flex;
     flex-direction: column;
     align-content: start;
     gap: 11px;
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow), 0 0 0 1px var(--scg, transparent),
+                0 4px 18px var(--scg, transparent);
+    transition: box-shadow .16s, transform .16s, border-color .16s;
   }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow), 0 0 0 1px var(--sc, var(--line)),
+                0 6px 26px var(--scg, transparent);
+  }
+
+  /* Save toggle — a star pinned to the card's top-right corner. Filled when the
+     ad is in the localStorage saved set. Sits above the price via padding on the
+     model column, so it never overlaps the number. */
+  .save {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 8px;
+    background: none;
+    color: var(--ink-3);
+    font-size: 17px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color .13s, background .13s, transform .1s;
+  }
+
+  .save:hover { background: var(--surface-2); color: var(--accent); }
+  .save:active { transform: scale(.88); }
+  .save[aria-pressed="true"] { color: var(--mid); }
+
+  /* Leave room for the star so a long price never slides under it. */
+  .card .price { padding-right: 26px; }
 
   /* Rows stretch cards to equal height; keep the slack below the actions rather
      than opening a hole where a missing tread meter would have been. */
@@ -573,12 +669,27 @@
 
   .call:hover { opacity: .7; }
 
-  /* Skelbiu hides numbers behind viewer verification — say so instead of a dead button. */
+  /* Skelbiu hides numbers behind viewer verification — the number lives on the
+     ad page, so this links straight there, styled identically to the portal
+     link (.view) with the same arrow. */
   .no-phone {
-    font-size: 12px;
-    color: var(--ink-3);
+    font-size: 12.5px;
+    font-weight: 650;
+    color: var(--ink-2);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 1px;
     white-space: nowrap;
+    transition: color .13s, border-color .13s;
   }
+
+  .no-phone::after {
+    content: " ↗";
+    font-size: 11px;
+    opacity: .7;
+  }
+
+  .no-phone:hover { color: var(--accent); border-color: var(--accent); }
 
   .view {
     margin-left: auto;
@@ -618,6 +729,58 @@
   }
 
   footer a { color: var(--accent); }
+
+  /* ---------- scroll FAB ---------- */
+
+  /* Quick jump to top / bottom. Fixed to the bottom-right, above the fold; fades
+     in only once the page is scrollable and scrolled. Clears the home-indicator
+     inset when installed as an app. */
+  .scroll-fab {
+    position: fixed;
+    right: 14px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0));
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity .18s, transform .18s;
+  }
+
+  .scroll-fab.show {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .fab {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    line-height: 1;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: background .13s, color .13s, border-color .13s, transform .1s;
+  }
+
+  .fab:hover { border-color: var(--accent); color: var(--accent); }
+  .fab:active { transform: scale(.9); }
+
+  /* A button loses purpose at its extreme (top button at the very top); dim and
+     disable it there rather than removing it, so the pair doesn't jump. */
+  .fab[disabled] {
+    opacity: .35;
+    pointer-events: none;
+  }
 
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
@@ -710,7 +873,12 @@
     </p>
   </header>
 
-  <div class="seasons" role="tablist" aria-label="Sezonas" id="seasons"></div>
+  <div class="seasons-row">
+    <div class="seasons" role="tablist" aria-label="Sezonas" id="seasons"></div>
+    <button class="season-tab saved-tab" id="savedToggle" role="tab" aria-selected="false">
+      <span aria-hidden="true">★</span> Išsaugoti<span class="n" id="savedCount">0</span>
+    </button>
+  </div>
 
   <section class="controls" aria-label="Filtrai">
     <div class="filterbar">
@@ -774,6 +942,11 @@
   </footer>
 </div>
 
+<div class="scroll-fab" id="scrollFab" aria-hidden="true">
+  <button class="fab" id="fabTop" aria-label="Į viršų" title="Į viršų">↑</button>
+  <button class="fab" id="fabBottom" aria-label="Į apačią" title="Į apačią">↓</button>
+</div>
+
 <script>
   // Season layers, inlined by build.js: SEASONS is the tab list (order matters),
   // LAYERS maps a season id to its ad array. ADS points at the active layer.
@@ -794,7 +967,29 @@
 
   // New tires are dealer stock, so the page shows used by default and switches
   // to the new-only list when the toggle is pressed.
-  const state = { season: firstWithData.id, qty: "all", source: "all", brand: "all", sort: "price", view: "used" };
+  // `saved` is a cross-season view: when on, the grid shows every saved ad from
+  // every layer, ignoring the season/brand/source/qty filters.
+  const state = { season: firstWithData.id, qty: "all", source: "all", brand: "all", sort: "price", view: "used", saved: false };
+
+  // Saved ads live in localStorage, keyed by ad URL (always present, unique).
+  // Independent of the service-worker CACHE, so they survive app updates.
+  const SAVED_KEY = "padangos.saved";
+  let SAVED = new Set();
+  try { SAVED = new Set(JSON.parse(localStorage.getItem(SAVED_KEY) || "[]")); } catch (_) {}
+
+  const persistSaved = () => {
+    try { localStorage.setItem(SAVED_KEY, JSON.stringify([...SAVED])); } catch (_) {}
+  };
+  const isSaved = url => SAVED.has(url);
+  const toggleSaved = url => {
+    if (SAVED.has(url)) SAVED.delete(url); else SAVED.add(url);
+    persistSaved();
+  };
+
+  // Every ad across all layers — the pool the saved view draws from, since a
+  // saved ad may belong to a season other than the one on screen.
+  const ALL_ADS = SEASONS.flatMap(s => LAYERS[s.id] || []);
+  const savedAds = () => ALL_ADS.filter(a => SAVED.has(a.url));
 
   const UNKNOWN = "Kita";
   const brandOf = a => a.brand || UNKNOWN;
@@ -805,6 +1000,14 @@
 
   const el = id => document.getElementById(id);
   const fmtPhone = p => p.replace(/^\+370(\d{3})(\d{2})(\d{3})$/, "+370 $1 $2 $3");
+
+  // Season → its identity colour + glow, as CSS var references so light/dark and
+  // theme overrides all resolve automatically. Unknown seasons get no tint.
+  function seasonVars(season) {
+    if (season === "winter") return { c: "var(--winter)", g: "var(--winter-glow)" };
+    if (season === "all-season") return { c: "var(--allseason)", g: "var(--allseason-glow)" };
+    return { c: "var(--line)", g: "transparent" };
+  }
 
   function treadColor(t) {
     if (t === null) return "var(--ink-3)";
@@ -832,7 +1035,10 @@
   }
 
   function visible() {
-    let out = ADS.filter(a => condMatches(a) && sourceMatches(a) && brandMatches(a) && qtyMatches(a));
+    // Saved view overrides every other filter and spans all season layers.
+    let out = state.saved
+      ? savedAds().slice()
+      : ADS.filter(a => condMatches(a) && sourceMatches(a) && brandMatches(a) && qtyMatches(a));
     const by = {
       "price": (x, y) => x.price - y.price,
       "price-desc": (x, y) => y.price - x.price,
@@ -957,7 +1163,13 @@
       const setPrice = a.qty >= 4 ? `<span class="tag set">4 vnt. = ${a.price * 4} €</span>` : "";
       const isNew = a.condition === "new";
 
-      return `<article class="card${a.tread === null ? " no-tread" : ""}" style="--fill:${fill}">
+      const saved = isSaved(a.url);
+      const sc = seasonVars(a.season);
+
+      return `<article class="card${a.tread === null ? " no-tread" : ""}" style="--fill:${fill};--sc:${sc.c};--scg:${sc.g}">
+        <button class="save" data-save="${a.url}" aria-pressed="${saved}"
+          aria-label="${saved ? "Pašalinti iš išsaugotų" : "Išsaugoti"}"
+          title="${saved ? "Pašalinti iš išsaugotų" : "Išsaugoti"}">${saved ? "★" : "☆"}</button>
         <div class="card-top">
           <div>
             ${a.brand ? `<div class="brand">${a.brand}</div>` : ""}
@@ -979,7 +1191,7 @@
         <div class="actions">
           ${a.phone
             ? `<a class="call" href="tel:${a.phone}">${fmtPhone(a.phone)}</a>`
-            : `<span class="no-phone">tel. tik portale</span>`}
+            : `<a class="no-phone" href="${a.url}" target="_blank" rel="noopener">tel. tik portale</a>`}
           <a class="view" href="${a.url}" target="_blank" rel="noopener">${a.source}</a>
         </div>
       </article>`;
@@ -1015,15 +1227,29 @@
     badge.classList.toggle("hidden", n === 0);
   }
 
+  // The saved tab is always visible and carries the count (0 when nothing saved).
+  function renderSaved() {
+    const n = savedAds().length;
+    // If the last saved ad was just removed while viewing the saved list, fall
+    // back to the normal listing.
+    if (n === 0 && state.saved) state.saved = false;
+    el("savedCount").textContent = n;
+    el("savedToggle").setAttribute("aria-selected", String(state.saved));
+  }
+
   function render() {
     renderSeasons();
-    // An empty layer has nothing to filter — hide the controls so the page isn't
-    // a wall of zero-count chips.
-    document.querySelector(".controls").classList.toggle("hidden", !ADS.length);
+    renderSaved();
+    // The saved view spans all layers, so the season tabs and season-scoped
+    // filters don't apply — hide the controls while it's on. Also hide them when
+    // the active layer is empty, so the page isn't a wall of zero-count chips.
+    document.querySelector(".controls").classList.toggle("hidden", state.saved || !ADS.length);
     const list = visible();
     renderChips();
     renderFilterBadge();
     renderGrid(list);
+    // Card count changed the page height — refresh the jump buttons' visibility.
+    if (typeof updateFab === "function") updateFab();
   }
 
   el("filterToggle").addEventListener("click", () => {
@@ -1035,7 +1261,10 @@
 
   el("seasons").addEventListener("click", e => {
     const b = e.target.closest("[data-season]");
-    if (!b || b.dataset.season === state.season) return;
+    if (!b) return;
+    // Clicking a season leaves the saved view and switches layer.
+    if (b.dataset.season === state.season && !state.saved) return;
+    state.saved = false;
     state.season = b.dataset.season;
     ADS = LAYERS[state.season] || [];
     // Filters belong to the layer that was showing; reset them for the new one.
@@ -1096,13 +1325,69 @@
     render();
   });
 
+  // Star toggle on any card — delegated so it survives re-renders.
+  el("grid").addEventListener("click", e => {
+    const b = e.target.closest("[data-save]");
+    if (!b) return;
+    toggleSaved(b.dataset.save);
+    render();
+  });
+
+  el("savedToggle").addEventListener("click", () => {
+    state.saved = !state.saved;
+    render();
+  });
+
   render();
+
+  // Collapse the mobile filter panel if it's open — so scrolling the list frees
+  // the maximum viewport for cards.
+  function collapseFilters() {
+    const body = el("filterBody");
+    if (!body.classList.contains("open")) return;
+    body.classList.remove("open");
+    el("filterToggle").setAttribute("aria-expanded", "false");
+  }
+
+  // Quick jump buttons. Shown once the page is scrollable and scrolled; each is
+  // disabled at its own extreme so the pair never jumps position.
+  const fab = el("scrollFab"), fabTop = el("fabTop"), fabBottom = el("fabBottom");
+  const smooth = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+  fabTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: smooth }));
+  fabBottom.addEventListener("click", () =>
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: smooth }));
+
+  function updateFab() {
+    const fab = el("scrollFab");
+    if (!fab) return;
+    const y = window.scrollY;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    // Visible whenever the page is scrollable — not tied to the current offset,
+    // so the pair never flickers away while you're scrolling. Each button just
+    // dims at its own extreme.
+    const on = max > 240;
+    fab.classList.toggle("show", on);
+    fab.setAttribute("aria-hidden", String(!on));
+    el("fabTop").disabled = y <= 4;
+    el("fabBottom").disabled = y >= max - 4;
+  }
 
   // Collapse the sticky top strip to a compact one-line header once the page is
   // scrolled, so the listing gets the space back but the header never hides.
+  // On the same downward crossing, fold away an open filter panel too.
   const topbar = el("topbar");
-  const onScroll = () => topbar.classList.toggle("compact", window.scrollY > 60);
+  let wasCompact = false;
+  const onScroll = () => {
+    const compact = window.scrollY > 60;
+    topbar.classList.toggle("compact", compact);
+    // Only fold on the transition into compact, so the user can reopen the
+    // filters while already scrolled without them snapping shut again.
+    if (compact && !wasCompact) collapseFilters();
+    wasCompact = compact;
+    updateFab();
+  };
   window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", updateFab, { passive: true });
   onScroll();
 </script>
 
