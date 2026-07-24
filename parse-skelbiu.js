@@ -95,12 +95,21 @@ for (const m of text.matchAll(RE)) {
     .replace(/\s+/g, ' ')
     .trim();
 
+  // Skelbiu's own "Naudota/Nauja" field is the primary signal, but some dealers
+  // list genuinely-new stock under "Naudota" while the title and URL shout
+  // "naujos" (+ a recent model year). Treat those as new. "beveik naujos"
+  // (almost new) is the opposite — an explicitly used tire — so it must NOT flip.
+  const looksNew = (
+    /\bnaujos?\b/i.test(title) && !/beveik\s+naujos?/i.test(title)
+  ) || /naujos-padangos/i.test(slug);
+  const condition = cond === 'Nauja' || looksNew ? 'new' : 'used';
+
   seen.add(id);
   out.push({
     id,
     title: cleanTitle || title.trim(),
     brand,
-    condition: cond === 'Nauja' ? 'new' : 'used',
+    condition,
     qty: qtyRaw ? (qtyRaw.startsWith('>') ? 5 : parseInt(qtyRaw, 10)) : null,
     qtyLabel: qtyRaw || null,
     price: priceP ? Math.round(parseFloat(priceP.replace(/[^\d.,]/g, '').replace(',', '.'))) : null,
