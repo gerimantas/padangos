@@ -269,16 +269,23 @@
     font-size: 15px;
     font-weight: 800;
     color: #e0322b;
-    border: 1.5px solid #e0322b;
+    border: 1px solid #e0322b;
     border-radius: 999px;
+    box-shadow: 0 0 6px rgba(224, 50, 43, .55), 0 0 2px rgba(224, 50, 43, .8);
+    transition: box-shadow .13s, background .13s, color .13s;
   }
 
-  .help-tab:hover { color: #e0322b; background: rgba(224, 50, 43, .1); }
+  .help-tab:hover {
+    color: #e0322b;
+    background: rgba(224, 50, 43, .1);
+    box-shadow: 0 0 10px rgba(224, 50, 43, .75), 0 0 3px rgba(224, 50, 43, .9);
+  }
 
   .help-tab[aria-pressed="true"] {
     color: #fff;
     background: #e0322b;
     border-color: #e0322b;
+    box-shadow: 0 0 10px rgba(224, 50, 43, .8), 0 0 4px rgba(224, 50, 43, 1);
   }
 
   /* ---------- filters ---------- */
