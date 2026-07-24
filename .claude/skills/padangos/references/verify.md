@@ -68,6 +68,15 @@ counts), extend the desktop block — the session history has examples of clicki
 `#newToggle`, `#mainToggle`, `[data-brand="…"]` and asserting the resulting card
 counts.
 
+Interactive selectors added since the base harness, worth asserting when you
+touch them: `.save` / `[data-save]` (star toggle → `localStorage["padangos.saved"]`
+persists across a `page.reload()`), `#savedToggle` (cross-season saved list;
+grid + `.controls` hidden while active), `#helpToggle` (swaps `#grid` for
+`#helpPanel`; `.controls` hidden), `#scrollFab` with `#fabTop`/`#fabBottom`
+(shown when `scrollHeight - innerHeight > 240`, each disabled at its extreme),
+and the mobile filter auto-collapse (open `#filterBody`, scroll past 60, assert
+it closed). All four have working reference scripts in the session history.
+
 ## Gotchas that wasted time
 
 - **Screenshots look "huge" at DPR 2–3, but the CSS is fine.** The iPhone device

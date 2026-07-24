@@ -158,20 +158,58 @@ cleanup in the parser — don't drop the ad.
 
 ## Edit the viewer
 
-## Edit the viewer
+All UI lives in `template.html`; `build.js` inlines the data and wraps it in the
+`<head>`/viewport skeleton. The inline anchors it replaces are
+`/*__SEASONS__*/[]`, `/*__LAYERS__*/{}` (the season-keyed ad object) and
+`__SCRAPED__` (the scrape date — see "Scrape date is auto-derived" below). CSS is
+organised into labelled regions — grep for the comment:
 
-All UI lives in `template.html`; `build.js` inlines the data (anchor:
-`__ADS__`) and wraps it in the `<head>`/viewport skeleton. CSS is organised into
-labelled regions — grep for the comment:
-
-- `/* ---------- header ---------- */` — title + subline
+- `/* ---------- header ---------- */` — title + centered muted subline
+- `/* ---------- season tabs ---------- */` — the `.seasons-row`: four
+  evenly-spaced tabs (`justify-content: space-between`; `.seasons` is
+  `display: contents` so the two season tabs distribute as direct row items)
+- `/* ---------- saved filter ---------- */` — the `★ Išsaugoti` tab
 - `/* ---------- filters ---------- */` — chips, brand dropdowns, sort
 - `/* ---------- cards ---------- */` — ad card + tread meter + call/link
+- `/* ---------- scroll FAB ---------- */` — the jump-to-top/bottom buttons
+- Help view (`.help-panel`) and the red `?` tab (`.help-tab`)
 - The `@media (max-width: 720px)` block — the entire phone layout
 
-JS state is one object (anchor: `state = {`): `qty, source, brand, sort, view`.
+JS state is one object (anchor: `state = {`):
+`season, qty, source, brand, sort, view, saved, help`.
 `view` is `"used"` (default) vs `"new"` (the "Naujos gera kaina" toggle).
-`render()` → `renderChips()` + `renderGrid()`; filter matchers are
-`condMatches / sourceMatches / brandMatches` + the `QTY_FILTERS` array.
+`saved` shows the cross-season saved list; `help` swaps the listing for the
+help text. `render()` orchestrates everything: `renderSeasons()`,
+`renderSaved()`, help/saved/controls visibility toggles, then `renderChips()` +
+`renderFilterBadge()` + `renderGrid()`, and finally `updateFab()`. Filter
+matchers are `condMatches / sourceMatches / brandMatches / qtyMatches` + the
+`QTY_FILTERS` array.
 
-After editing: `node build.js`, then run `verify.md`.
+**There is no `<footer>`.** The how-to / disclaimer text lives in
+`<section id="helpPanel" class="help-panel">` above the grid, hidden by default
+and shown when `state.help` is on. `__SCRAPED__` appears twice — the subline and
+the help panel's "Telefonai ir duomenys" paragraph.
+
+**Saved ads** persist in `localStorage["padangos.saved"]`, a JSON array of ad
+`url`s (`SAVED` set, `toggleSaved()`, `persistSaved()`). The star is a delegated
+`[data-save]` handler on `#grid`; the `#savedToggle` tab renders `savedAds()`
+drawn from `ALL_ADS` (every layer), bypassing season/brand/source/qty filters.
+This is deliberately independent of the SW `CACHE`, so saves survive app updates
+(see pwa.md).
+
+**Per-season card colour**: CSS vars `--winter` / `--winter-glow` / `--allseason`
+/ `--allseason-glow` are defined in all three `:root` blocks (base,
+`[data-theme="dark"]`, `[data-theme="light"]`). `renderGrid` calls
+`seasonVars(a.season)` and sets `--sc` / `--scg` per `.card` — winter blue,
+all-season green, unknown → `--line`/transparent. Driving it per-card (not
+globally) is why a mixed saved list colours each card by its own season.
+
+**Scroll behaviour**: the sticky topbar goes `.compact` past `scrollY > 60`, and
+on that downward transition `collapseFilters()` folds an open mobile
+`#filterBody` to free the viewport. The FAB (`#scrollFab`, `#fabTop`/`#fabBottom`)
+is shown by `updateFab()` whenever `scrollHeight - innerHeight > 240`, each
+button disabled at its own scroll extreme. Both live in the `onScroll` handler.
+
+After editing: `node build.js`, then run `verify.md`. When adding UI, extend
+verify.md's checks with the new selectors (`#savedToggle`, `#helpToggle`,
+`.save`, `#scrollFab`) — the harness already exercises them.

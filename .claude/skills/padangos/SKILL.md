@@ -36,6 +36,13 @@ The golden rule: **scraping costs firecrawl credits and hits the network; parsin
 it for every change that isn't "get newer data". After any run, tell the user to
 open `padangos.html`.
 
+**The displayed scrape date is auto-derived — there is no date constant to edit.**
+`build.js` `lastScrapeDate()` walks `.firecrawl/` for the newest `*.md` mtime and
+substitutes it for `__SCRAPED__` (shown in the subline and the help panel). So a
+`--build-only` rebuild keeps the real last-scrape date; a fresh scrape advances it
+automatically. (It was once a hand-typed constant that silently went stale — do
+not reintroduce one.)
+
 Requirements: `firecrawl` CLI authenticated (`firecrawl login --browser`) and Node.
 
 ## Verifying a change
@@ -59,10 +66,11 @@ This asymmetry drives most of the code — keep it in mind before touching a par
 | Autoplius | ✅ full | ✅ | Richest. City tag is *nearest city* — real address can be Kauno r. |
 | Autogidas | ⚠️ some ads | ✅ | Condition + phone only on the ad page, not the listing. |
 | Alio | ✅ | ❌ | Thin used supply in this size; mostly dealer/new. |
-| Skelbiu | ❌ never | ❌ | Phone behind a viewer-verification wall. Link only. |
+| Skelbiu | ❌ never | ❌ | Phone behind a viewer-verification wall. Link only. `condition` overridden — see trap below. |
 
-Skelbiu ads legitimately have `phone: null` and show "tel. tik portale" — that is
-correct, not a bug. Do not try to scrape Skelbiu phone numbers; it is a login
+Skelbiu ads legitimately have `phone: null`. The card shows "tel. tik portale"
+**as a link to the ad page** (not plain text) — the number is on that page.
+Correct, not a bug. Do not try to scrape Skelbiu phone numbers; it is a login
 wall, not a JS click.
 
 ## Data model
@@ -98,6 +106,13 @@ another. To add the all-season data layer, see references/tasks.md "Add a season
 layer" — it needs season-specific scrape queries and a separate cache dir so the
 two seasons don't overwrite each other's pages.
 
+Each season also has an **identity colour** in the viewer — winter blue,
+all-season green — applied as a per-card tinted border + glow (`seasonVars()` →
+`--sc`/`--scg`; CSS vars `--winter`/`--allseason` in every `:root` block). It is
+set from each ad's own `season`, so a mixed saved list colours each card
+correctly. When adding a season, give it a colour pair too. See references/tasks.md
+"Edit the viewer".
+
 ## Data integrity traps (learned the hard way)
 
 These are the failure modes that silently corrupt the dataset — check for them
@@ -127,6 +142,16 @@ whenever a count changes unexpectedly or a card looks wrong.
   be mistaken for the title, and `\*` escapes leak into sizes. The parsers have
   targeted cleanups; when a title looks broken, fix the cleanup rather than
   dropping the ad. See references/tasks.md "Title extraction gotchas".
+- **Skelbiu "Naudota" mislabels new dealer stock.** `condition` is NOT simply the
+  portal's Naudota/Nauja field. Some Skelbiu dealers list genuinely-new tires
+  under the "Naudota" category while the title/URL shout "naujos" (+ a recent
+  model year). `parse-skelbiu.js` overrides those to `new` (anchor: `looksNew`):
+  title `\bnaujos?\b` **not** preceded by "beveik", or slug contains
+  `naujos-padangos`. **The "beveik naujos" (almost-new) exclusion is load-bearing**
+  — it is an explicitly *used* tire and must stay `used`. **Symptom:** a "Naujos
+  2025/2026" dealer ad shows in the used list instead of under "Naujos gera
+  kaina". If a real used ad wrongly flips to new, tighten `looksNew`; if a new
+  dealer ad leaks into used, widen it.
 
 ## Common edits
 
@@ -137,6 +162,8 @@ line-level anchors for:
 - **Add / change seller address** → edit `SELLERS` map in `parse.js`
 - **Fix / add a brand** → edit `BRANDS` list in `merge.js` (brand detection)
 - **Cross-post duplicate wrongly dropped/kept** → `dedupe` key in `merge.js`
+- **New-vs-used misclassified** (esp. Skelbiu "Naujos" dealer ads) → `looksNew`
+  in `parse-skelbiu.js` (see the Skelbiu trap under "Data integrity traps")
 - **Add a new portal** → new `scrape-*.sh` + `parse-*.js` + wire into `merge.js` + `run-all.sh`
 - **Change the search size (e.g. 205/55 R16 → other)** → the URL query in each `scrape-*.sh`
 - **Add a season layer** (e.g. summer) → references/tasks.md "Add a season layer"

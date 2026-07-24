@@ -31,6 +31,17 @@ is unchanged, the old worker keeps the stale copy and users never see the update
 Changing the name forces `activate` to drop old caches. Forgetting this is the
 single most likely "why didn't my update show up" cause.
 
+**Naming convention:** `padangos-<YYYY-MM-DD>` plus a trailing letter that
+increments per *additional* bump on the same day — `…-25` → `…-25b` → `…-25c` …
+(a session once reached `…-25m`). Read the current value and bump the letter; do
+**not** reset to a bare date, or you can reuse a name already shipped that day and
+the update won't propagate. New day → new date, drop the letter.
+
+**Saved ads are NOT in the cache.** `localStorage["padangos.saved"]` lives
+outside the SW `CACHE`, so bumping the cache (or a full app update) never wipes a
+user's saved list — that independence is intentional. Don't try to version or
+clear saved ads via the cache.
+
 ## file:// does not work
 
 A service worker (hence install + offline) requires a secure origin. Opening the
