@@ -87,50 +87,69 @@
 
   /* ---------- header ---------- */
 
+  /* The whole top strip — title, season tabs, filter bar — stays pinned while
+     the listing scrolls. Once scrolled, it collapses to a compact one-line
+     header so it takes minimal vertical space but never disappears. */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: var(--ground);
+    /* Clear the status-bar notch when launched as an installed app. */
+    padding-top: env(safe-area-inset-top, 0);
+  }
+
+  /* Header is a compact single line — same weight/size language as the menus
+     below it, so the whole top strip reads as one tight band. */
   .masthead {
     display: flex;
-    flex-direction: column;
-    gap: 7px;
-    padding: 26px 0 16px;
-    border-bottom: 2px solid var(--ink);
+    flex-direction: row;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    padding: 12px 0 10px;
+    border-bottom: 1px solid var(--ink);
   }
 
   h1 {
     margin: 0;
-    font-size: clamp(22px, 4.2vw, 38px);
+    font-size: 15px;
     font-weight: 750;
-    letter-spacing: -.02em;
-    line-height: 1.08;
-    text-wrap: balance;
+    letter-spacing: -.01em;
+    line-height: 1.2;
   }
+
+  /* Scrolled state just tightens the padding — the header is already one line. */
+  .topbar.compact .masthead {
+    flex-wrap: nowrap;
+    padding: 7px 0;
+    overflow: hidden;
+  }
+
+  .topbar.compact h1,
+  .topbar.compact .subline { white-space: nowrap; }
 
   .subline {
     margin: 0;
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: 8px;
-    font-size: 13px;
+    gap: 7px;
+    font-size: 12.5px;
     color: var(--ink-3);
-    line-height: 1.5;
+    line-height: 1.3;
   }
 
   .subline .size {
     font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
-    font-size: 14px;
+    font-size: 12.5px;
     font-weight: 650;
-    letter-spacing: .03em;
+    letter-spacing: .02em;
     color: var(--accent);
   }
 
   .subline .sep { color: var(--line); }
 
-  /* The separator only makes sense when both halves share a line. */
-  @media (max-width: 720px) {
-    .subline { gap: 3px 8px; }
-    .subline .sep { display: none; }
-    .subline .when { flex-basis: 100%; }
-  }
 
   .subline b {
     font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
@@ -138,18 +157,118 @@
     font-weight: 600;
   }
 
+  /* ---------- season tabs ---------- */
+
+  .seasons {
+    display: flex;
+    gap: 4px;
+    margin: 8px 0 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .season-tab {
+    font: inherit;
+    font-size: 13px;
+    font-weight: 650;
+    letter-spacing: -.01em;
+    padding: 7px 12px;
+    border: none;
+    background: none;
+    color: var(--ink-3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color .13s, border-color .13s;
+  }
+
+  .season-tab:hover { color: var(--ink); }
+
+  .season-tab[aria-selected="true"] {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .season-tab[data-empty="1"] { color: var(--ink-3); opacity: .7; }
+
+  .season-tab .n {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 12px;
+    font-weight: 600;
+    opacity: .65;
+    margin-left: 6px;
+  }
+
   /* ---------- filters ---------- */
 
   .controls {
-    position: sticky;
-    top: 0;
-    z-index: 20;
     background: var(--ground);
-    padding: 14px 0 12px;
+    padding: 8px 0 8px;
     border-bottom: 1px solid var(--line);
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
+  }
+
+  /* The filter bar (burger + sort) is a mobile affordance; on desktop the full
+     filter body is always visible, so the bar is hidden and the body never
+     collapses. The mobile rules below flip this. */
+  .filterbar { display: none; }
+
+  .filter-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sort-inline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+  }
+
+  .filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 650;
+    padding: 5px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .filter-toggle .burger {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 2.5px;
+    width: 13px;
+  }
+
+  .filter-toggle .burger i {
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+  }
+
+  .filter-badge {
+    background: var(--accent);
+    color: var(--ground);
+    border-radius: 999px;
+    min-width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 0 5px;
+    opacity: 1;
+    margin-left: 0;
   }
 
   .row {
@@ -170,14 +289,15 @@
 
   .chip {
     font: inherit;
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 600;
-    padding: 6px 13px;
+    padding: 4px 9px;
     border: 1px solid var(--line);
-    border-radius: 999px;
+    border-radius: 5px;
     background: var(--surface);
     color: var(--ink-2);
     cursor: pointer;
+    white-space: nowrap;
     transition: background .13s, color .13s, border-color .13s;
   }
 
@@ -191,9 +311,9 @@
 
   .chip .n {
     font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
-    font-size: 11.5px;
+    font-size: 11px;
     opacity: .68;
-    margin-left: 5px;
+    margin-left: 4px;
   }
 
   /* Opt-in for dealer stock — styled apart from the source/quantity chips so it
@@ -253,14 +373,12 @@
     color: var(--ground);
   }
 
-  .sort-row { margin-left: auto; gap: 6px; }
-
   select {
     font: inherit;
-    font-size: 13.5px;
-    padding: 6px 10px;
+    font-size: 13px;
+    padding: 5px 9px;
     border: 1px solid var(--line);
-    border-radius: 7px;
+    border-radius: 6px;
     background: var(--surface);
     color: var(--ink);
     cursor: pointer;
@@ -421,22 +539,21 @@
   .call {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
     font-variant-numeric: tabular-nums;
     font-size: 13px;
     font-weight: 650;
     letter-spacing: -.01em;
-    padding: 5px 9px;
-    border-radius: 6px;
-    background: var(--accent-soft);
     color: var(--accent);
     text-decoration: none;
     white-space: nowrap;
-    transition: background .13s, color .13s;
+    transition: opacity .13s;
   }
 
-  .call:hover { background: var(--accent); color: var(--ground); }
+  .call::before { content: "📞"; font-size: 12px; }
+
+  .call:hover { opacity: .7; }
 
   /* Skelbiu hides numbers behind viewer verification — say so instead of a dead button. */
   .no-phone {
@@ -502,35 +619,51 @@
       padding-right: 14px;
     }
 
-    /* Each filter group scrolls sideways instead of wrapping into tall stacks —
-       except the last row, which must wrap so the sort control gets its own line. */
-    .controls .row { flex-wrap: nowrap; gap: 7px; }
-    .controls .row.wrap-row { flex-wrap: wrap; }
-
-    .controls > .row > .row[role="group"] {
-      overflow-x: auto;
-      scrollbar-width: none;
-      padding-bottom: 2px;
-      -webkit-overflow-scrolling: touch;
+    /* On a phone the filter rows would eat the whole screen, so they collapse
+       behind a "Filtrai" toggle. The bar (burger + sort) is always visible; the
+       body only appears when opened. */
+    .filterbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .controls > .row > .row[role="group"]::-webkit-scrollbar { display: none; }
+    .filter-body {
+      display: none;
+      padding-top: 4px;
+      gap: 10px;
+    }
+
+    .filter-body.open { display: flex; }
+
+    /* On a phone the chips WRAP instead of scrolling — a hidden horizontal
+       scroll left cut-off buttons unreachable. Each group stacks its label above
+       its wrapped chips so every option is visible without scrolling. */
+    /* Kiekis / Šaltinis stack their label above a wrapped chip group. */
+    .filter-body > .labeled-row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+    }
+
+    .filter-body > .labeled-row > .row[role="group"] { flex-wrap: wrap; gap: 6px; }
+
+    /* Brand row (label + dropdowns) and the panels/new row all just wrap. */
+    .filter-body > .brand-row,
+    .filter-body > .brand-panel,
+    .filter-body > .row { flex-wrap: wrap; gap: 6px; }
 
     .row-label {
       min-width: 0;
-      flex: none;
-      font-size: 9.5px;
+      font-size: 10px;
       letter-spacing: .1em;
     }
 
     .chip {
       flex: none;
-      font-size: 13px;
-      padding: 7px 12px;
+      font-size: 12.5px;
+      padding: 5px 9px;
     }
-
-    .sort-row { width: 100%; margin-left: 0; }
-    .sort-row select { flex: 1; }
 
     .brand-panel { margin-left: 0; }
 
@@ -541,68 +674,33 @@
     .model { font-size: 15.5px; }
     .price { font-size: 21px; }
 
-    /* Phone number is the point of the page — give it a full-width tap target. */
-    .actions {
-      flex-wrap: wrap;
-      gap: 8px;
-      padding-top: 2px;
-    }
-
-    .call {
-      flex: 1 1 100%;
-      justify-content: center;
-      font-size: 15px;
-      padding: 11px 12px;
-      background: var(--accent);
-      color: var(--ground);
-    }
-
-    .no-phone { flex: 1; font-size: 12.5px; }
-
-    .view {
-      margin-left: auto;
-      font-size: 13px;
-      padding: 4px 0;
-    }
+    /* Phone number + ad link stay on one compact line, same as desktop. */
+    .actions { gap: 10px; padding-top: 2px; }
+    .call { font-size: 13.5px; }
+    .view { font-size: 13px; }
   }
 </style>
 
 <div class="wrap">
+  <div class="topbar" id="topbar">
   <header class="masthead">
-    <h1>Naudotos žieminės padangos Kauno regione</h1>
+    <h1 id="pageTitle">Naudotos padangos</h1>
     <p class="subline">
-      <span class="size">205 / 55 R16 · lengviesiems</span>
+      <span class="size">205/55R16</span>
       <span class="sep" aria-hidden="true">·</span>
-      <span class="when">Surinkta: <b>__SCRAPED__</b> · <b id="total">0</b> skelbimų</span>
+      <span class="when"><b>__SCRAPED__</b></span>
     </p>
   </header>
 
+  <div class="seasons" role="tablist" aria-label="Sezonas" id="seasons"></div>
+
   <section class="controls" aria-label="Filtrai">
-    <div class="row">
-      <span class="row-label" id="lbl-qty">Kiekis</span>
-      <div class="row" role="group" aria-labelledby="lbl-qty" id="qty"></div>
-    </div>
-    <div class="row">
-      <span class="row-label" id="lbl-src">Šaltinis</span>
-      <div class="row" role="group" aria-labelledby="lbl-src" id="sources"></div>
-    </div>
-    <div class="row brand-row">
-      <span class="row-label" id="lbl-brand">Gamintojas</span>
-      <button class="chip chip-more" id="mainToggle" aria-expanded="false" aria-controls="brandsMain">
-        Pagrindiniai ▾<span class="n" id="mainCount">0</span>
+    <div class="filterbar">
+      <button class="filter-toggle" id="filterToggle" aria-expanded="false" aria-controls="filterBody">
+        <span class="burger" aria-hidden="true"><i></i><i></i><i></i></span>
+        Filtrai<span class="n filter-badge hidden" id="filterBadge">0</span>
       </button>
-      <button class="chip chip-more" id="restToggle" aria-expanded="false" aria-controls="brandsRest">
-        Kiti ▾<span class="n" id="restCount">0</span>
-      </button>
-      <button class="chip brand-active hidden" id="brandActive" aria-pressed="true"></button>
-    </div>
-    <div class="row brand-panel hidden" role="group" aria-label="Pagrindiniai gamintojai" id="brandsMain"></div>
-    <div class="row brand-panel hidden" role="group" aria-label="Kiti gamintojai" id="brandsRest"></div>
-    <div class="row wrap-row">
-      <button class="chip chip-new" id="newToggle" aria-pressed="false">
-        <span id="newLabel">Naujos gera kaina</span><span class="n" id="newCount">0</span>
-      </button>
-      <label class="row sort-row">
+      <label class="sort-inline">
         <span class="row-label" style="min-width:0">Rikiuoti</span>
         <select id="sort">
           <option value="price">Kaina, pigiausios</option>
@@ -612,7 +710,36 @@
         </select>
       </label>
     </div>
+
+    <div class="filter-body" id="filterBody">
+      <div class="row labeled-row">
+        <span class="row-label" id="lbl-qty">Kiekis</span>
+        <div class="row" role="group" aria-labelledby="lbl-qty" id="qty"></div>
+      </div>
+      <div class="row labeled-row">
+        <span class="row-label" id="lbl-src">Šaltinis</span>
+        <div class="row" role="group" aria-labelledby="lbl-src" id="sources"></div>
+      </div>
+      <div class="row brand-row">
+        <span class="row-label" id="lbl-brand">Gamintojas</span>
+        <button class="chip chip-more" id="mainToggle" aria-expanded="false" aria-controls="brandsMain">
+          Pagrindiniai ▾<span class="n" id="mainCount">0</span>
+        </button>
+        <button class="chip chip-more" id="restToggle" aria-expanded="false" aria-controls="brandsRest">
+          Kiti ▾<span class="n" id="restCount">0</span>
+        </button>
+        <button class="chip brand-active hidden" id="brandActive" aria-pressed="true"></button>
+      </div>
+      <div class="row brand-panel hidden" role="group" aria-label="Pagrindiniai gamintojai" id="brandsMain"></div>
+      <div class="row brand-panel hidden" role="group" aria-label="Kiti gamintojai" id="brandsRest"></div>
+      <div class="row">
+        <button class="chip chip-new" id="newToggle" aria-pressed="false">
+          <span id="newLabel">Naujos gera kaina</span><span class="n" id="newCount">0</span>
+        </button>
+      </div>
+    </div>
   </section>
+  </div>
 
   <div class="grid" id="grid"></div>
 
@@ -630,10 +757,18 @@
 </div>
 
 <script>
-  const ADS = /*__ADS__*/[];
+  // Season layers, inlined by build.js: SEASONS is the tab list (order matters),
+  // LAYERS maps a season id to its ad array. ADS points at the active layer.
+  const SEASONS = /*__SEASONS__*/[];
+  const LAYERS = /*__LAYERS__*/{};
 
+  // Default to the first season that actually has data, so the page never opens
+  // on an empty layer while another is populated.
+  const firstWithData = SEASONS.find(s => (LAYERS[s.id] || []).length) || SEASONS[0];
+  let ADS = LAYERS[firstWithData.id] || [];
+
+  // "all" is the default (no chip) — re-clicking the active chip returns to it.
   const QTY_FILTERS = [
-    { id: "all", label: "Visi", test: () => true },
     { id: "4", label: "Komplektas (4)", test: a => a.qty >= 4 },
     { id: "2", label: "Pora (2+)", test: a => a.qty >= 2 },
     { id: "phone", label: "Su telefonu", test: a => !!a.phone },
@@ -641,7 +776,7 @@
 
   // New tires are dealer stock, so the page shows used by default and switches
   // to the new-only list when the toggle is pressed.
-  const state = { qty: "all", source: "all", brand: "all", sort: "price", view: "used" };
+  const state = { season: firstWithData.id, qty: "all", source: "all", brand: "all", sort: "price", view: "used" };
 
   const UNKNOWN = "Kita";
   const brandOf = a => a.brand || UNKNOWN;
@@ -672,9 +807,14 @@
     return state.brand === "all" || brandOf(a) === state.brand;
   }
 
-  function visible() {
+  function qtyMatches(a) {
+    if (state.qty === "all") return true;
     const qf = QTY_FILTERS.find(q => q.id === state.qty);
-    let out = ADS.filter(a => condMatches(a) && sourceMatches(a) && brandMatches(a) && qf.test(a));
+    return qf ? qf.test(a) : true;
+  }
+
+  function visible() {
+    let out = ADS.filter(a => condMatches(a) && sourceMatches(a) && brandMatches(a) && qtyMatches(a));
     const by = {
       "price": (x, y) => x.price - y.price,
       "price-desc": (x, y) => y.price - x.price,
@@ -692,13 +832,11 @@
     // numbers stay meaningful after a selection.
     const srcCounts = {};
     for (const a of pool) if (brandMatches(a)) srcCounts[a.source] = (srcCounts[a.source] || 0) + 1;
-    const sources = [
-      { id: "all", label: "Visi", n: pool.filter(brandMatches).length },
-      ...Object.keys(srcCounts).sort().map(s => ({ id: s, label: s, n: srcCounts[s] })),
-    ];
+    // No "Visi" chip — re-clicking the active source resets it to all.
+    const sources = Object.keys(srcCounts).sort().map(s => ({ id: s, n: srcCounts[s] }));
     el("sources").innerHTML = sources.map(s =>
       `<button class="chip" data-source="${s.id}" aria-pressed="${state.source === s.id}">` +
-      `${s.label}<span class="n">${s.n}</span></button>`
+      `${s.id}<span class="n">${s.n}</span></button>`
     ).join("");
 
     const brandCounts = {};
@@ -746,11 +884,11 @@
       active.classList.remove("hidden");
     }
 
-    // The two expandable panels, each with a leading "Visi" option.
+    // No "Visi" in the panels — the active-brand pill's ✕ clears the selection,
+    // and re-clicking the active brand chip also resets it.
     const mainPanel = el("brandsMain");
     if (main.length && mainOpen) {
-      mainPanel.innerHTML = chip("all", "Visi", pool.filter(sourceMatches).length)
-        + main.map(b => chip(b, b, brandCounts[b])).join("");
+      mainPanel.innerHTML = main.map(b => chip(b, b, brandCounts[b])).join("");
       mainPanel.classList.remove("hidden");
     } else {
       mainPanel.innerHTML = "";
@@ -759,8 +897,7 @@
 
     const restPanel = el("brandsRest");
     if (rest.length && restOpen) {
-      restPanel.innerHTML = chip("all", "Visi", pool.filter(sourceMatches).length)
-        + rest.map(b => chip(b, b === UNKNOWN ? "Kita" : b, brandCounts[b])).join("");
+      restPanel.innerHTML = rest.map(b => chip(b, b === UNKNOWN ? "Kita" : b, brandCounts[b])).join("");
       restPanel.classList.remove("hidden");
     } else {
       restPanel.innerHTML = "";
@@ -784,7 +921,12 @@
   function renderGrid(list) {
     const grid = el("grid");
     if (!list.length) {
-      grid.innerHTML = `<p class="empty">Pagal šiuos filtrus skelbimų nėra. Pabandykite kitą miestą arba kiekį.</p>`;
+      // Distinguish "no data scraped yet for this season" from "filters too tight".
+      const layerEmpty = !ADS.length;
+      const label = (SEASONS.find(s => s.id === state.season) || {}).label || "";
+      grid.innerHTML = layerEmpty
+        ? `<p class="empty">„${label}" padangų duomenys dar nesurinkti. Paieška bus atlikta netrukus.</p>`
+        : `<p class="empty">Pagal šiuos filtrus skelbimų nėra. Pabandykite kitą kiekį ar gamintoją.</p>`;
       return;
     }
 
@@ -826,17 +968,72 @@
     }).join("");
   }
 
+  function renderSeasons() {
+    el("seasons").innerHTML = SEASONS.map(s => {
+      const n = (LAYERS[s.id] || []).length;
+      const active = state.season === s.id;
+      const empty = n === 0;
+      return `<button class="season-tab" role="tab" data-season="${s.id}"` +
+        ` aria-selected="${active}"${empty ? " data-empty=\"1\"" : ""}>` +
+        `${s.label}<span class="n">${n || "—"}</span></button>`;
+    }).join("");
+  }
+
+  // How many filters differ from their default — drives the "Filtrai" badge so a
+  // collapsed panel still signals that filters are active.
+  function activeFilterCount() {
+    let n = 0;
+    if (state.qty !== "all") n++;
+    if (state.source !== "all") n++;
+    if (state.brand !== "all") n++;
+    if (state.view === "new") n++;
+    return n;
+  }
+
+  function renderFilterBadge() {
+    const n = activeFilterCount();
+    const badge = el("filterBadge");
+    badge.textContent = n;
+    badge.classList.toggle("hidden", n === 0);
+  }
+
   function render() {
+    renderSeasons();
+    // An empty layer has nothing to filter — hide the controls so the page isn't
+    // a wall of zero-count chips.
+    document.querySelector(".controls").classList.toggle("hidden", !ADS.length);
     const list = visible();
     renderChips();
+    renderFilterBadge();
     renderGrid(list);
-    el("total").textContent = ADS.filter(condMatches).length;
   }
+
+  el("filterToggle").addEventListener("click", () => {
+    const t = el("filterToggle");
+    const open = t.getAttribute("aria-expanded") !== "true";
+    t.setAttribute("aria-expanded", String(open));
+    el("filterBody").classList.toggle("open", open);
+  });
+
+  el("seasons").addEventListener("click", e => {
+    const b = e.target.closest("[data-season]");
+    if (!b || b.dataset.season === state.season) return;
+    state.season = b.dataset.season;
+    ADS = LAYERS[state.season] || [];
+    // Filters belong to the layer that was showing; reset them for the new one.
+    state.source = "all";
+    state.brand = "all";
+    state.qty = "all";
+    state.view = "used";
+    mainOpen = restOpen = false;
+    render();
+  });
 
   el("sources").addEventListener("click", e => {
     const b = e.target.closest("[data-source]");
     if (!b) return;
-    state.source = b.dataset.source;
+    // Re-clicking the active source clears it back to all.
+    state.source = state.source === b.dataset.source ? "all" : b.dataset.source;
     // The chosen brand may not exist within the new source.
     if (state.brand !== "all" && !ADS.some(a => condMatches(a) && sourceMatches(a) && brandOf(a) === state.brand)) {
       state.brand = "all";
@@ -847,7 +1044,8 @@
   function pickBrand(e) {
     const b = e.target.closest("[data-brand]");
     if (!b) return;
-    state.brand = b.dataset.brand;
+    // Re-clicking the active brand clears it (the pill's ✕ also does this).
+    state.brand = state.brand === b.dataset.brand ? "all" : b.dataset.brand;
     render();
   }
   el("brandsMain").addEventListener("click", pickBrand);
@@ -862,7 +1060,8 @@
   el("qty").addEventListener("click", e => {
     const b = e.target.closest("[data-qty]");
     if (!b) return;
-    state.qty = b.dataset.qty;
+    // Re-clicking the active chip clears it (no "Visi" chip to fall back on).
+    state.qty = state.qty === b.dataset.qty ? "all" : b.dataset.qty;
     render();
   });
 
@@ -880,4 +1079,11 @@
   });
 
   render();
+
+  // Collapse the sticky top strip to a compact one-line header once the page is
+  // scrolled, so the listing gets the space back but the header never hides.
+  const topbar = el("topbar");
+  const onScroll = () => topbar.classList.toggle("compact", window.scrollY > 60);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
 </script>

@@ -3,8 +3,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const list = require('./.firecrawl/autogidas-list.json').filter(a => a.city === 'Kaunas');
-const dir = '.firecrawl/ag-ads';
+const SEASON = process.env.SEASON || 'winter';
+const list = require(`./.firecrawl/autogidas-list-${SEASON}.json`).filter(a => a.city === 'Kaunas');
+const dir = SEASON === 'all-season' ? '.firecrawl/agu-ads' : '.firecrawl/ag-ads';
 
 const out = [];
 for (const a of list) {
@@ -17,7 +18,7 @@ for (const a of list) {
 
   // Brand is the leading word of the listing title when it is a real make.
   const first = a.title.split(/\s+/)[0];
-  const brand = /^(Kitas|Žieminės|205)/i.test(first) ? null : first;
+  const brand = /^(Kitas|Žieminės|Universalios|205)/i.test(first) ? null : first;
 
   out.push({
     title: a.title,
@@ -35,6 +36,7 @@ for (const a of list) {
   });
 }
 
+fs.writeFileSync(`.firecrawl/autogidas-kaunas-${SEASON}.json`, JSON.stringify(out, null, 2));
 fs.writeFileSync('.firecrawl/autogidas-kaunas.json', JSON.stringify(out, null, 2));
 console.log('autogidas kaunas:', out.length,
   '| used:', out.filter(a => a.condition === 'used').length,

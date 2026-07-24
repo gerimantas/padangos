@@ -40,7 +40,16 @@ function detectBrand(title, existing) {
   return null;
 }
 
-const autoplius = require('./.firecrawl/ads.json')
+// Read the layer for the season being built; fall back to the generic alias for
+// backward compatibility if the season-scoped file is absent.
+const SEASON_IN = process.env.SEASON || 'winter';
+const load = (base) => {
+  const scoped = `./.firecrawl/${base}-${SEASON_IN}.json`;
+  const generic = `./.firecrawl/${base}.json`;
+  try { return require(scoped); } catch { return require(generic); }
+};
+
+const autoplius = load('ads')
   .filter(a => KAUNAS.has(a.area))
   .map(a => ({
     title: a.title,
@@ -57,7 +66,7 @@ const autoplius = require('./.firecrawl/ads.json')
     url: a.url,
   }));
 
-const skelbiu = require('./.firecrawl/skelbiu-kaunas.json')
+const skelbiu = load('skelbiu-kaunas')
   .filter(a => KAUNAS.has(a.area) && a.price !== null && a.url)
   .map(a => ({
     title: a.title,
@@ -75,8 +84,8 @@ const skelbiu = require('./.firecrawl/skelbiu-kaunas.json')
     url: a.url,
   }));
 
-const autogidas = require('./.firecrawl/autogidas-kaunas.json');
-const alio = require('./.firecrawl/alio-final.json');
+const autogidas = load('autogidas-kaunas');
+const alio = load('alio-final');
 
 // The same seller sometimes cross-posts to several portals. Match on the full
 // model name plus price and quantity — brand+price+qty alone collides between
@@ -97,13 +106,33 @@ const agUnique = dedupe(autogidas);
 const alUnique = dedupe(alio);
 const skUnique = dedupe(skelbiu);
 
+// Drop ads whose title is obvious scrape garbage (a CAPTCHA/interstitial page
+// leaked in instead of the listing). A real tire title is short and never
+// contains a URL or the reCAPTCHA notice.
+const isGarbage = t => !t || t.length > 70 || /recaptcha|cloud\.google|https?:\/\/|autogidas\.lt\/skelbimai/i.test(t);
+
+// Quality floor: single tires and anything under 20 €/vnt are dropped — a lone
+// tire rarely helps and sub-20 € listings are mostly worn-out or bulk clear-outs.
+const MIN_PRICE = 20;
+const meetsFloor = a => a.qty >= 2 && a.price != null && a.price >= MIN_PRICE;
+
 const all = [...autoplius, ...agUnique, ...alUnique, ...skUnique]
+  .filter(a => !isGarbage(a.title) && meetsFloor(a))
   .sort((a, b) => a.price - b.price);
 
 // Normalise / backfill the brand so the filter has clean, deduplicated makes.
 for (const a of all) a.brand = detectBrand(a.title, a.brand);
 
+// The viewer stacks seasons as switchable layers, so each ad carries its season.
+// SEASON env var selects which layer this run builds (default winter); the parsed
+// JSON inputs are season-specific too (see run-all.sh SEASON handling).
+const SEASON = process.env.SEASON || 'winter';
+for (const a of all) a.season = SEASON;
+
+fs.writeFileSync(`.firecrawl/merged-${SEASON}.json`, JSON.stringify(all, null, 2));
+// Keep a stable alias so anything reading the generic name still works.
 fs.writeFileSync('.firecrawl/merged.json', JSON.stringify(all, null, 2));
+console.log('season:', SEASON);
 
 const withBrand = all.filter(a => a.brand).length;
 console.log('brand detected:', withBrand, '/', all.length,

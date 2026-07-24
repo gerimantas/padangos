@@ -84,7 +84,19 @@ Every ad in `.firecrawl/merged.json` (and inlined into the HTML) is:
 }
 ```
 
-Prices are per single tire. "Komplekto kaina" = `price × qty`.
+Prices are per single tire. "Komplekto kaina" = `price × qty`. Every ad also has
+`season` (`"winter"` | `"all-season"`).
+
+## Seasons (switchable layers)
+
+The viewer stacks one layer per season as tabs at the top (Žieminės /
+Universalios). `build.js` reads **every** `.firecrawl/merged-<season>.json` that
+exists and inlines them as a season-keyed object; a season with no file yet shows
+as an empty "coming soon" tab. `SEASON` env var (default `winter`) selects which
+layer a `merge.js`/`run-all.sh` run produces — building one season never drops
+another. To add the all-season data layer, see references/tasks.md "Add a season
+layer" — it needs season-specific scrape queries and a separate cache dir so the
+two seasons don't overwrite each other's pages.
 
 ## Common edits
 

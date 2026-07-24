@@ -15,7 +15,14 @@ const SELLERS = {
   '+37067193165': { address: null },
 };
 
-const raw = fs.readFileSync('.firecrawl/meta.txt', 'utf8').split('\n').filter(Boolean);
+// SEASON selects the meta file + the season word stripped from titles, so the
+// same parser serves both the winter and all-season Autoplius layers.
+const SEASON = process.env.SEASON || 'winter';
+const SEASON_WORD = SEASON === 'all-season' ? 'universalios' : 'žieminės';
+const metaFile = `.firecrawl/meta-${SEASON}.txt`;
+const src = fs.existsSync(metaFile) ? metaFile : '.firecrawl/meta.txt';
+
+const raw = fs.readFileSync(src, 'utf8').split('\n').filter(Boolean);
 const ads = [];
 
 for (const row of raw) {
@@ -25,7 +32,7 @@ for (const row of raw) {
   const slug = file.replace(/\.md$/, '');
   const parts = meta.split('\\|').map(s => s.trim());
 
-  const title = parts[0].replace(/,\s*žieminės 205\/55 R16$/, '');
+  const title = parts[0].replace(new RegExp(`,\\s*${SEASON_WORD} 205/55 R16$`), '');
   const get = re => { for (const p of parts) { const m = p.match(re); if (m) return m[1]; } return null; };
 
   const tread = get(/^Likutis:\s*(\d+)%/);
@@ -57,6 +64,9 @@ for (const row of raw) {
 }
 
 ads.sort((a, b) => (a.price ?? 1e9) - (b.price ?? 1e9));
+// Season-scoped output so the winter and all-season layers never overwrite each
+// other; a stable alias keeps anything reading the generic name working.
+fs.writeFileSync(`.firecrawl/ads-${SEASON}.json`, JSON.stringify(ads, null, 2));
 fs.writeFileSync('.firecrawl/ads.json', JSON.stringify(ads, null, 2));
 
 const byArea = {};

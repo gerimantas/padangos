@@ -1,0 +1,17 @@
+{
+  "name": "Naudotos padangos 205/55 R16",
+  "short_name": "Padangos",
+  "description": "Naudotų žieminių ir universalių 205/55 R16 padangų skelbimai Kauno regione.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#12171b",
+  "theme_color": "#12171b",
+  "lang": "lt",
+  "icons": [
+    { "src": "pwa/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "pwa/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "pwa/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

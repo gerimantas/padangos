@@ -4,7 +4,12 @@
 const fs = require('fs');
 const path = require('path');
 
-const files = fs.readdirSync('.firecrawl').filter(f => f.startsWith('skq-') && f.endsWith('.md'));
+// SEASON picks the scrape files (skq-* winter, skqu-* all-season) and the season
+// word stripped from titles / used for the output name.
+const SEASON = process.env.SEASON || 'winter';
+const PREFIX = SEASON === 'all-season' ? 'skqu-' : 'skq-';
+
+const files = fs.readdirSync('.firecrawl').filter(f => f.startsWith(PREFIX) && f.endsWith('.md'));
 const text = files.map(f => fs.readFileSync(path.join('.firecrawl', f), 'utf8')).join('\n');
 
 // A block runs from "[Rodyti" to the closing ad URL.
@@ -43,6 +48,21 @@ for (const m of text.matchAll(RE)) {
   const size = parts.find(p => /^R16 \/ 205 \/ 55$/.test(p));
   if (!size) continue;
 
+  // Skelbiu's search mixes seasons, so filter by what the ad text actually says.
+  // On the all-season layer drop anything explicitly winter/summer; on winter
+  // drop explicit universal/summer. The ad's own words are the source of truth.
+  const blockText = parts.join(' ').toLowerCase();
+  const isWinter = /žiemin|ziemin/.test(blockText);
+  const isUniversal = /universal|m\+s|all\s*season|4\s*season|quatrac|vector|crossclimate|weather/.test(blockText);
+  const isSummer = /vasarin/.test(blockText);
+  if (SEASON === 'all-season') {
+    if (isWinter && !isUniversal) continue;
+    if (isSummer && !isUniversal) continue;
+  } else {
+    if (isUniversal && !isWinter) continue;
+    if (isSummer && !isWinter) continue;
+  }
+
   const cond = parts.find(p => /^(Naudota|Nauja)$/.test(p));
   const qtyRaw = parts.find(p => /vnt\.$/.test(p));
   const place = parts.find(p => /,\s*(prieš|\d|sausio|vasario|kovo|balandžio|gegužės|birželio|liepos|rugpjūčio|rugsėjo|spalio|lapkričio|gruodžio)/.test(p) && /^(Kaunas|Kauno r\.)/.test(p));
@@ -53,16 +73,23 @@ for (const m of text.matchAll(RE)) {
 
   const posted = place.split(',').slice(1).join(',').trim();
   const priceP = parts.find(p => /^\d[\d.,]* €$/.test(p));
-  const title = parts.find(p => p !== 'Rodyti' && p.length > 6 && !/€|vnt\.|^R16/.test(p)) || slug;
+  // The title is the first substantive line — skip the place/date line, the
+  // price, quantity and size, which can otherwise be mistaken for it.
+  const isPlaceLine = p => /^(Kaunas|Kauno r\.|Vilnius|Klaipėda)\s*,/.test(p);
+  const isNoise = p => /€|vnt\.|^R16|!\[|\]\(|https?:|\.jpg|\.png|^Naudota$|^Nauja$/.test(p);
+  const title = parts.find(p =>
+    p !== 'Rodyti' && p.length > 6 && !isNoise(p) && !isPlaceLine(p))
+    || slug.replace(/-/g, ' ');
 
   // Brand line sits between condition and size; "-Kita-" means unspecified.
   const bi = parts.indexOf(cond);
   let brand = bi > 0 ? parts[bi - 1] : null;
   if (!brand || /-Kita-|^\d|€/.test(brand)) brand = null;
 
-  // Every ad is 205/55 R16 by construction, so the size in the title is noise.
+  // Every ad is 205/55 R16 by construction, so the size + season word in the
+  // title is noise. Strip both seasons' words regardless of the active layer.
   const cleanTitle = title
-    .replace(/,?\s*žiemin[ėe]s?\s*205\s*\/?\s*55\s*\/?\s*R?16.*$/i, '')
+    .replace(/,?\s*(žiemin[ėe]s?|universali[ои]s?|vasarin[ėe]s?)\s*205\s*\/?\s*55\s*\/?\s*R?16.*$/i, '')
     .replace(/\s*205\s*\/\s*55\s*\/?\s*r?16\s*/i, ' ')
     .replace(/[\s,.]+$/, '')
     .replace(/\s+/g, ' ')
@@ -83,6 +110,7 @@ for (const m of text.matchAll(RE)) {
   });
 }
 
+fs.writeFileSync(`.firecrawl/skelbiu-kaunas-${SEASON}.json`, JSON.stringify(out, null, 2));
 fs.writeFileSync('.firecrawl/skelbiu-kaunas.json', JSON.stringify(out, null, 2));
 console.log('skelbiu kaunas region:', out.length);
 console.log('used:', out.filter(a => a.condition === 'used').length,

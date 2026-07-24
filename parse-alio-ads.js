@@ -3,8 +3,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const list = require('./.firecrawl/alio-kaunas.json');
-const dir = '.firecrawl/alio-k-ads';
+const SEASON = process.env.SEASON || 'winter';
+const list = require(`./.firecrawl/alio-kaunas-${SEASON}.json`);
+const dir = SEASON === 'all-season' ? '.firecrawl/alio-us-ads' : '.firecrawl/alio-k-ads';
 
 const out = [];
 for (const a of list) {
@@ -29,12 +30,15 @@ for (const a of list) {
     title = h1 ? h1[1].replace(/\s+/g, ' ').trim() : 'Žieminės padangos';
   }
   title = title
+    .replace(/\\/g, '')              // drop markdown escape backslashes (205\*55)
     .replace(/\.{2,}/g, ' ')
     .replace(/["“”]/g, '')
-    .replace(/\s*(Ismatavimai|Išmatavimai)?\s*205\s*[\/*x\- ]\s*55\s*([\/*x\- ]?\s*R?\s*16)?\s*/gi, ' ')
+    .replace(/\s*(Ismatavimai|Išmatavimai)\s*205\s*[\/*x\- ]\s*55[^,]*/gi, ' ')
+    .replace(/\s*205\s*[\/*x\- ]\s*55\s*([\/*x\- ]?\s*R?\s*16)?\s*/gi, ' ')
     .replace(/^R\s*16\s*/i, '')
+    .replace(/\s*,\s*(Kaunas|Kauno r\.|Vilnius|Klaipėda)\s*$/i, '') // trailing city
     .replace(/\s+/g, ' ')
-    .replace(/[\s.\-]+$/, '')
+    .replace(/[\s.,\-]+$/, '')
     .trim();
 
   const first = title.split(/\s+/)[0];
@@ -56,6 +60,7 @@ for (const a of list) {
   });
 }
 
+fs.writeFileSync(`.firecrawl/alio-final-${SEASON}.json`, JSON.stringify(out, null, 2));
 fs.writeFileSync('.firecrawl/alio-final.json', JSON.stringify(out, null, 2));
 console.log('alio kaunas:', out.length,
   '| used:', out.filter(a => a.condition === 'used').length,

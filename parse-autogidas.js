@@ -2,7 +2,15 @@
 // markdown link; the spec line packs size/quantity/city with no separators.
 const fs = require('fs');
 
-const text = ['ag-recheck', 'ag-pg2', 'ag-pg3']
+// SEASON picks the listing-page files (ag-* winter, agu-* all-season) and the
+// season word stripped from titles / output name.
+const SEASON = process.env.SEASON || 'winter';
+const FILES = SEASON === 'all-season'
+  ? ['agu-us1', 'agu-us2', 'agu-us3']
+  : ['ag-recheck', 'ag-pg2', 'ag-pg3'];
+const SEASON_WORD = SEASON === 'all-season' ? 'Universalios' : 'Žieminės';
+
+const text = FILES
   .map(f => { try { return fs.readFileSync(`.firecrawl/${f}.md`, 'utf8'); } catch { return ''; } })
   .join('\n');
 
@@ -27,7 +35,7 @@ for (const m of text.matchAll(RE)) {
   seen.add(slug);
   out.push({
     slug,
-    title: rawTitle.replace(/\s*Žieminės\s*$/i, '').replace(/\s+/g, ' ').trim(),
+    title: rawTitle.replace(new RegExp(`\\s*${SEASON_WORD}\\s*$`, 'i'), '').replace(/\s+/g, ' ').trim(),
     tread: tread ? +tread : null,
     qty: /ir daugiau|^>/.test(qtyRaw) ? 5 : parseInt(qtyRaw, 10),
     qtyLabel: /ir daugiau|^>/.test(qtyRaw) ? '>5 vnt.' : `${parseInt(qtyRaw, 10)} vnt.`,
@@ -37,9 +45,10 @@ for (const m of text.matchAll(RE)) {
   });
 }
 
+fs.writeFileSync(`.firecrawl/autogidas-list-${SEASON}.json`, JSON.stringify(out, null, 2));
 fs.writeFileSync('.firecrawl/autogidas-list.json', JSON.stringify(out, null, 2));
 const byCity = out.reduce((m, a) => (m[a.city] = (m[a.city] || 0) + 1, m), {});
-console.log('autogidas 205/55 R16 winter:', out.length, '| by city:', byCity);
+console.log(`autogidas 205/55 R16 ${SEASON}:`, out.length, '| by city:', byCity);
 for (const a of out.filter(a => a.city === 'Kaunas')) {
   console.log(` ${String(a.price).padStart(4)}€ ${a.qtyLabel.padEnd(8)} ${String(a.tread ?? '—').padStart(3)}% ${a.title.slice(0, 46)}`);
 }

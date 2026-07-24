@@ -80,6 +80,37 @@ The parsers also assert the size (e.g. `parse-skelbiu.js` matches
 `R16 / 205 / 55`) to reject cross-linked ads — update those guards too, then do a
 full `./scripts/run-all.sh` since the cached pages are for the old size.
 
+## Add a season layer (e.g. all-season / universalios)
+
+The viewer already supports multiple seasons; adding one is a data task. Each
+season is an independent scrape → parse → merge run whose output is
+`.firecrawl/merged-<season>.json`. The winter and all-season scrapes must NOT
+share cache files, or the second overwrites the first.
+
+1. Give each `scripts/scrape-*.sh` an all-season query and a season-scoped cache
+   path. The cleanest approach: read `SEASON` at the top of each scraper and
+   branch the query + output dir:
+   - Autoplius: `qt=205-55-r16-ziemines` → for all-season use the M+S/universal
+     filter (`…-universalios` or the season param the portal uses); write ad
+     pages to `.firecrawl/ads-$SEASON/` and meta to `.firecrawl/meta-$SEASON.txt`.
+   - Skelbiu: swap the `QUERIES` slugs to the universal ones.
+   - Autogidas: change `f_435` (Sezoniškumas) from Žieminės to the all-season value.
+   - Alio: swap the search slug.
+2. Make each `parse-*.js` read the season-scoped input (the `SEASON` env var) and
+   keep writing the same per-portal JSON — `merge.js` already stamps `season` from
+   `SEASON` and writes `merged-$SEASON.json`.
+3. Run it: `SEASON=all-season ./scripts/run-all.sh`. `build.js` picks up the new
+   `merged-all-season.json` automatically and fills the Universalios tab.
+4. Verify the tab shows the right count and the winter tab is unchanged (its
+   `merged-winter.json` is untouched).
+
+Until the scrapers are season-parameterised, the all-season tab renders as an
+empty "coming soon" layer — which is the current intended state.
+
+The season list + tab order live in `build.js` (`SEASONS` array) and the label
+words in `template.html` (`SEASON_WORD`). Add a season to both if you introduce a
+third (e.g. summer / vasarinės).
+
 ## Edit the viewer
 
 All UI lives in `template.html`; `build.js` inlines the data (anchor:
