@@ -105,6 +105,12 @@
 
   * { box-sizing: border-box; }
 
+  html { scroll-behavior: smooth; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+
   body {
     margin: 0;
     overflow-x: hidden; /* chip rows scroll inside themselves, never the page */
@@ -139,14 +145,44 @@
   /* Header is a compact single line — same weight/size language as the menus
      below it, so the whole top strip reads as one tight band. */
   .masthead {
+    position: relative;
     display: flex;
     flex-direction: row;
     align-items: baseline;
     justify-content: center;
     flex-wrap: wrap;
     gap: 4px 10px;
-    padding: 12px 0 10px;
+    /* Right padding reserves room for the "?" so the centered title never slides
+       under it. */
+    padding: 12px 34px 10px 0;
     border-bottom: 1px solid var(--ink);
+  }
+
+  /* Help "?" pinned to the masthead's right edge — jumps to the description at
+     the bottom without disturbing the centered title. */
+  .help-btn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink-3);
+    text-decoration: none;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    transition: color .13s, border-color .13s, background .13s;
+  }
+
+  .help-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
   }
 
   /* Title shares the subline's muted colour so the whole line reads as one. */
@@ -720,6 +756,8 @@
     color: var(--ink-3);
     line-height: 1.65;
     max-width: 640px;
+    /* Clear the sticky header when jumped to via the "?" help link. */
+    scroll-margin-top: 160px;
   }
 
   footer p {
@@ -867,6 +905,7 @@
 <div class="wrap">
   <div class="topbar" id="topbar">
   <header class="masthead">
+    <a class="help-btn" id="helpBtn" href="#help" aria-label="Kaip naudotis" title="Kaip naudotis">?</a>
     <h1 id="pageTitle">Naudotos padangos</h1>
     <p class="subline">
       <span class="size">205/55R16</span>
@@ -931,7 +970,7 @@
 
   <div class="grid" id="grid"></div>
 
-  <footer>
+  <footer id="help">
     <p>
       <b>Kas tai.</b> Naudotų <b>205/55 R16</b> padangų skelbimai iš keturių LT
       portalų (Autoplius, Autogidas, Alio, Skelbiu), surinkti į vieną vietą ir
