@@ -20,10 +20,32 @@ for (const s of SEASONS) {
 
 const total = Object.values(layers).reduce((n, l) => n + l.length, 0);
 
+// Scrape date = the newest raw page fetched under .firecrawl/ (its mtime). This
+// reflects the real last scrape even on a --build-only rebuild, instead of a
+// hand-typed date that silently goes stale.
+function lastScrapeDate() {
+  let newest = 0;
+  const walk = dir => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) walk(full);
+      else if (e.name.endsWith('.md')) {
+        const t = fs.statSync(full).mtimeMs;
+        if (t > newest) newest = t;
+      }
+    }
+  };
+  try { walk('.firecrawl'); } catch (_) {}
+  const d = newest ? new Date(newest) : new Date();
+  return d.toISOString().slice(0, 10);
+}
+
+const scraped = lastScrapeDate();
+
 const body = fs.readFileSync('template.html', 'utf8')
   .replace('/*__SEASONS__*/[]', JSON.stringify(SEASONS))
   .replace('/*__LAYERS__*/{}', JSON.stringify(layers))
-  .replaceAll('__SCRAPED__', '2026-07-25');
+  .replaceAll('__SCRAPED__', scraped);
 
 // Standalone file, so it needs its own head — without the viewport meta a phone
 // renders the page at desktop width and zooms out.
@@ -64,4 +86,4 @@ fs.writeFileSync('padangos.html', html);
 // (https://…/padangos/), which is what people install to the home screen.
 fs.writeFileSync('index.html', html);
 const counts = SEASONS.map(s => `${s.id}=${layers[s.id].length}`).join(', ');
-console.log('padangos.html + index.html written:', html.length, 'bytes |', counts, '| total', total);
+console.log('padangos.html + index.html written:', html.length, 'bytes |', counts, '| total', total, '| scraped', scraped);
