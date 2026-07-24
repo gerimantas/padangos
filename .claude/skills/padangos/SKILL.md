@@ -1,6 +1,6 @@
 ---
 name: padangos
-description: Operate the padangos used-tire search project (c:\Users\retco\Projects\padangos) — a self-contained padangos.html viewer of used winter 205/55 R16 tire listings scraped from four Lithuanian classifieds portals (Autoplius, Autogidas, Alio, Skelbiu), filtered to the Kaunas region. Use this skill whenever the user wants to refresh/re-scrape the listings, add or change a portal or search size, edit the viewer's filters/layout/styles, fix the scrape→parse→merge→build pipeline, add seller addresses, tune brand detection or cross-post dedupe, or troubleshoot why an ad, phone, price, or brand is wrong or missing. Trigger on: "atnaujink padangas/skelbimus", "perscrapink", "pataisyk padangos.html", "pridek portala/gamintoja/filtra", "kodel skelbimo/telefono/kainos nera", "padangos", "run-all", or any work inside the padangos project. Also trigger when the user opens padangos.html, template.html, or any parse-*.js / merge.js / build.js in this project and asks to change it.
+description: Operate the padangos used-tire search project (c:\Users\retco\Projects\padangos) — a self-contained, installable PWA (padangos.html / index.html) of used 205/55 R16 tire listings in two switchable season layers (winter + all-season), scraped from four Lithuanian classifieds portals (Autoplius, Autogidas, Alio, Skelbiu), filtered to the Kaunas region, and deployed to GitHub Pages. Use this skill whenever the user wants to refresh/re-scrape the listings, add or change a portal, season, or search size, edit the viewer's filters/layout/header/styles, fix the scrape→parse→merge→build pipeline, add seller addresses, tune brand detection or cross-post dedupe, deploy or update the live app / PWA / service worker, regenerate the QR code, or troubleshoot why an ad, phone, price, brand, or season is wrong or missing. Trigger on: "atnaujink padangas/skelbimus", "perscrapink", "pataisyk padangos.html", "pridek portala/gamintoja/filtra/sezona", "universalios/ziemines", "kodel skelbimo/telefono/kainos nera", "deploy/push padangos", "qr kodas", "pwa", "padangos", "run-all", or any work inside the padangos project. Also trigger when the user opens padangos.html, template.html, index.html, sw.js, manifest, or any parse-*.js / merge.js / build.js in this project and asks to change it.
 ---
 
 # Padangos — used tire search project
@@ -98,6 +98,36 @@ another. To add the all-season data layer, see references/tasks.md "Add a season
 layer" — it needs season-specific scrape queries and a separate cache dir so the
 two seasons don't overwrite each other's pages.
 
+## Data integrity traps (learned the hard way)
+
+These are the failure modes that silently corrupt the dataset — check for them
+whenever a count changes unexpectedly or a card looks wrong.
+
+- **Season cross-contamination.** Every parser writes `*-<season>.json` AND a
+  generic alias (`ads.json`, `skelbiu-kaunas.json`, …). `merge.js` `load()` reads
+  the season-scoped file, falling back to the alias. If a season-scoped file is
+  missing, `load()` silently uses whichever season wrote the alias last — so a
+  winter build can pick up all-season data. **Symptom:** a season's total jumps or
+  drops for no reason (this cost a 94→85 winter regression). **Rule:** after
+  changing a parser, regenerate *both* seasons' files (run each parser once per
+  `SEASON`) before trusting any merge. The alias is a convenience, never the
+  source of truth.
+- **Portals mix seasons in search results.** Skelbiu and Alio search return
+  winter + all-season together; filtering by the search page is not enough. The
+  parsers classify by the **ad's own text** (winter words vs `universal|m+s|
+  all season|4season|quatrac|vector|crossclimate|weather`), rejecting summer.
+  Note M+S *is* all-season even when the title also says "žieminės". If a wrong-
+  season ad appears, tighten that text filter, not the query.
+- **Scrape returns a CAPTCHA / interstitial** instead of the listing → a garbage
+  title (reCAPTCHA notice, a URL, 100+ chars). `merge.js` has an `isGarbage`
+  filter (title too long or contains a URL / reCAPTCHA string) as the safety net.
+  If real ads vanish, the threshold is too tight; if junk shows, extend it.
+- **Fragile title extraction** (Skelbiu especially): search terms are wrapped in
+  markdown emphasis mid-word (`B _r_ idgestone`), place/date and image lines can
+  be mistaken for the title, and `\*` escapes leak into sizes. The parsers have
+  targeted cleanups; when a title looks broken, fix the cleanup rather than
+  dropping the ad. See references/tasks.md "Title extraction gotchas".
+
 ## Common edits
 
 For anything beyond a quick tweak, read the matching section of
@@ -109,7 +139,9 @@ line-level anchors for:
 - **Cross-post duplicate wrongly dropped/kept** → `dedupe` key in `merge.js`
 - **Add a new portal** → new `scrape-*.sh` + `parse-*.js` + wire into `merge.js` + `run-all.sh`
 - **Change the search size (e.g. 205/55 R16 → other)** → the URL query in each `scrape-*.sh`
+- **Add a season layer** (e.g. summer) → references/tasks.md "Add a season layer"
 - **Edit the viewer** (filters, header, cards, mobile) → `template.html` regions
+- **PWA / deploy / QR / refresh live app** → `references/pwa.md`
 
 ## What NOT to do
 

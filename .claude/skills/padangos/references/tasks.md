@@ -80,36 +80,83 @@ The parsers also assert the size (e.g. `parse-skelbiu.js` matches
 `R16 / 205 / 55`) to reject cross-linked ads — update those guards too, then do a
 full `./scripts/run-all.sh` since the cached pages are for the old size.
 
-## Add a season layer (e.g. all-season / universalios)
+## Seasons — how they work, and adding a third
 
-The viewer already supports multiple seasons; adding one is a data task. Each
-season is an independent scrape → parse → merge run whose output is
-`.firecrawl/merged-<season>.json`. The winter and all-season scrapes must NOT
-share cache files, or the second overwrites the first.
+Two layers ship: `winter` and `all-season`. The parsers are already
+`SEASON`-aware (env var, default `winter`) — each reads a season-scoped input and
+writes both `*-<season>.json` and a generic alias. `merge.js` stamps `season` and
+writes `merged-<season>.json`; `build.js` inlines every `merged-*.json` as a tab.
+The tab list lives in the `SEASONS` array in `build.js`; the title/strip words
+live in each parser's `SEASON_WORD` (parse.js / parse-autogidas.js).
 
-1. Give each `scripts/scrape-*.sh` an all-season query and a season-scoped cache
-   path. The cleanest approach: read `SEASON` at the top of each scraper and
-   branch the query + output dir:
-   - Autoplius: `qt=205-55-r16-ziemines` → for all-season use the M+S/universal
-     filter (`…-universalios` or the season param the portal uses); write ad
-     pages to `.firecrawl/ads-$SEASON/` and meta to `.firecrawl/meta-$SEASON.txt`.
-   - Skelbiu: swap the `QUERIES` slugs to the universal ones.
-   - Autogidas: change `f_435` (Sezoniškumas) from Žieminės to the all-season value.
-   - Alio: swap the search slug.
-2. Make each `parse-*.js` read the season-scoped input (the `SEASON` env var) and
-   keep writing the same per-portal JSON — `merge.js` already stamps `season` from
-   `SEASON` and writes `merged-$SEASON.json`.
-3. Run it: `SEASON=all-season ./scripts/run-all.sh`. `build.js` picks up the new
-   `merged-all-season.json` automatically and fills the Universalios tab.
-4. Verify the tab shows the right count and the winter tab is unchanged (its
-   `merged-winter.json` is untouched).
+**The current state is partly manual.** The `parse-*.js` layer branches on
+`SEASON` cleanly, but the **scrape** step for all-season was done ad-hoc: the
+universal pages were fetched into separate cache paths (`ads-allseason/`,
+`agu-*`/`agu-ads/`, `skqu-*`, `alio-us-*`) and the winter `scrape-*.sh` scripts
+still query winter only. So `SEASON=all-season ./scripts/run-all.sh --build-only`
+re-parses/merges the already-cached universal pages, but a fresh universal scrape
+needs the manual steps below (or, better, finish parameterizing the scrapers).
 
-Until the scrapers are season-parameterised, the all-season tab renders as an
-empty "coming soon" layer — which is the current intended state.
+### To finish parameterizing the scrapers (the clean fix)
 
-The season list + tab order live in `build.js` (`SEASONS` array) and the label
-words in `template.html` (`SEASON_WORD`). Add a season to both if you introduce a
-third (e.g. summer / vasarinės).
+Give each `scripts/scrape-*.sh` a `SEASON` branch: winter uses the existing
+query + cache dir; all-season uses the universal query + a `-$SEASON`-suffixed
+cache dir/file. Universal queries found this session:
+- Autoplius: `qt=205-55-r16-universalios` (URL slug `…-universalios-205-55-r16-…`).
+- Skelbiu: search slugs like `universalios-205-55-r16-kaunas`.
+- Autogidas: `f_435=Universalios` (the Sezoniškumas filter value).
+- Alio: `205-55-r16-universalios-padangos-kaunas`.
+
+### THE trap: never let seasons overwrite each other
+
+Two independent failures cost real time this session — avoid both:
+
+1. **Generic-alias fallback.** After adding season suffixes, if a season's
+   `*-<season>.json` is missing, `merge.js` `load()` falls back to the alias,
+   which holds whatever season ran last → silent contamination (winter dropped
+   94→85). **Fix / prevention:** whenever you touch a parser, regenerate *both*
+   seasons' JSON before merging — `for s in winter all-season; do SEASON=$s node
+   parse.js; SEASON=$s node parse-skelbiu.js; …; done`. Confirm each
+   `merged-<season>.json` has 0 wrong-season titles.
+2. **Shared scrape cache.** If a universal scrape writes into the winter ad dir,
+   it clobbers winter pages. Always use a `-$SEASON` cache path.
+
+Verify after any season work:
+```bash
+node -e "for(const s of['winter','all-season']){const a=require('./.firecrawl/merged-'+s+'.json');
+console.log(s,a.length,'winter-leak',a.filter(x=>/žiemin|ziemin/i.test(x.title)&&s=='all-season').length,
+'uni-leak',a.filter(x=>/universal/i.test(x.title)&&s=='winter').length)}"
+```
+
+### Adding a third season (e.g. summer / vasarinės)
+
+Add it to the `SEASONS` array in `build.js`, add the season word to each parser's
+`SEASON_WORD` map, give the scrapers/parsers its query + cache branch, run
+`SEASON=summer ./scripts/run-all.sh`. The empty-layer "coming soon" tab renders
+automatically until data exists.
+
+## Title extraction gotchas (Skelbiu / Alio)
+
+The classifieds' markdown fights clean titles. When a title looks broken, fix the
+cleanup in the parser — don't drop the ad.
+
+- **Skelbiu wraps every search term in markdown emphasis, even mid-word:**
+  `Bridgestone` comes back as `B _r_ idgestone`. `parse-skelbiu.js` rejoins the
+  fragment forms before stripping emphasis. A standalone emphasized word
+  (`Žieminės _r16_ padangos`) must keep its spaces — only *word-internal*
+  fragments rejoin. Getting this wrong yields either `B r idgestone` (spaces left)
+  or `Žieminėsr16padangos` (spaces eaten).
+- **Place/date and image lines masquerade as the title.** The title picker skips
+  the `Kaunas, <date>` line and any `![]`/URL/`.jpg` line; the fallback is the
+  slug with dashes turned to spaces.
+- **Escaped `\*` leaks into sizes** (Alio `205\*55-R16`): strip backslashes first,
+  then the size, then a trailing `, Kaunas`. Otherwise the size char-class matches
+  the `*` but not the leading `\`, leaving junk.
+- **Garbage from CAPTCHA pages** is the last line of defense in `merge.js`
+  (`isGarbage`), not the parser — a title over ~70 chars or containing a URL /
+  reCAPTCHA string is dropped.
+
+## Edit the viewer
 
 ## Edit the viewer
 

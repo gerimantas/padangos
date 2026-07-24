@@ -68,6 +68,22 @@ counts), extend the desktop block — the session history has examples of clicki
 `#newToggle`, `#mainToggle`, `[data-brand="…"]` and asserting the resulting card
 counts.
 
+## Gotchas that wasted time
+
+- **Screenshots look "huge" at DPR 2–3, but the CSS is fine.** The iPhone device
+  profile renders at `device_scale_factor` 3, so a 390-CSS-px page produces a
+  ~1170px image and every element looks oversized. Do NOT resize things based on
+  how a screenshot looks. To judge real size, either read the computed value
+  (`getComputedStyle(e).fontSize`, `getBoundingClientRect().height`) or capture at
+  `device_scale_factor=1`. This misread caused "shrink the chips" churn that the
+  computed values didn't support.
+- **Lithuanian output crashes the Windows console** (`cp1252` can't encode `ė`,
+  `ž`, `ū`). Always run verify scripts with `PYTHONIOENCODING=utf-8 python …`, or
+  the script dies on a `print` of scraped text, not on a real failure.
+- **Prefer computed-style assertions over eyeballing** for anything measurable —
+  radius, font-size, overflow, element-on-same-line (`Math.abs(topA-topB)<6`).
+  They're deterministic and don't depend on DPR or theme.
+
 ## If playwright is missing
 
 `python -c "import playwright"` — if it fails:
