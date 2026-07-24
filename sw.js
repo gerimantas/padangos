@@ -1,7 +1,7 @@
 // Service worker for the padangos PWA. The listing data is inlined into
 // padangos.html, so caching the page + icons makes the whole app work offline.
 // Bump CACHE on every data/UI change so clients pull the fresh page.
-const CACHE = 'padangos-2026-07-25i';
+const CACHE = 'padangos-2026-07-25j';
 
 const ASSETS = [
   './',

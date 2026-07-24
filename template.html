@@ -179,26 +179,19 @@
 
   /* ---------- season tabs ---------- */
 
-  /* Season tabs and the saved chip share one line; the underline runs under the
-     whole row, tabs left, chip pushed to the right. */
+  /* All tabs share one line, spread with equal gaps across the full width. The
+     underline runs under the whole row. */
   .seasons-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: space-between;
     margin: 8px 0 0;
     border-bottom: 1px solid var(--line);
-    /* Fallback: if the four tabs can't fit, the row scrolls sideways rather than
-       wrapping a tab onto two lines or overflowing the page. */
-    overflow-x: auto;
-    scrollbar-width: none;
   }
 
-  .seasons-row::-webkit-scrollbar { display: none; }
-
-  .seasons {
-    display: flex;
-    gap: 4px;
-  }
+  /* Contents display flattens the season wrapper so its two tabs are laid out as
+     direct row items — letting all four tabs distribute evenly. */
+  .seasons { display: contents; }
 
   .season-tab {
     font: inherit;
@@ -249,7 +242,6 @@
      and tinted amber. Always visible (shows 0 when nothing saved). Spans all
      season layers. */
   .saved-tab {
-    margin-left: auto;
     color: var(--mid);
     /* Star + label stay on one line so the tab never doubles its height. */
     white-space: nowrap;
@@ -262,18 +254,31 @@
     border-bottom-color: var(--mid);
   }
 
-  /* Help toggle — a compact "?" tab. Sits right of Išsaugoti; when pressed it
-     swaps the listing for the how-to text. */
+  /* Help toggle — a bright-red "?" in a red circle, so it reads as a distinct
+     "how to use" affordance rather than another tab. When pressed it swaps the
+     listing for the how-to text. */
   .help-tab {
-    margin-left: 4px;
-    padding-left: 11px;
-    padding-right: 11px;
-    font-weight: 700;
+    flex: none;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    margin: 0 0 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 800;
+    color: #e0322b;
+    border: 1.5px solid #e0322b;
+    border-radius: 999px;
   }
 
+  .help-tab:hover { color: #e0322b; background: rgba(224, 50, 43, .1); }
+
   .help-tab[aria-pressed="true"] {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
+    color: #fff;
+    background: #e0322b;
+    border-color: #e0322b;
   }
 
   /* ---------- filters ---------- */
@@ -799,11 +804,9 @@
 
     .masthead { padding: 18px 0 12px; }
 
-    /* Tighten the tabs so all four (2 seasons + Išsaugoti + ?) fit one line. */
-    .seasons-row { gap: 4px; }
-    .season-tab { padding: 7px 8px; }
-    .saved-tab { padding-left: 8px; }
-    .help-tab { padding-left: 9px; padding-right: 9px; }
+    /* Tighten the tabs so all four (2 seasons + Išsaugoti + ?) fit one line.
+       The circular help-tab keeps its own fixed size. */
+    .season-tab:not(.help-tab) { padding: 7px 6px; }
 
     /* Filters stay reachable while scrolling a long list on a phone. */
     .controls {
