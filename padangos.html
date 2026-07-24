@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+</head>
+<body>
+<title>Žieminės padangos 205/55 R16 — naudotos</title>
+<style>
+  :root {
+    --ground: #f2f4f6;
+    --surface: #ffffff;
+    --surface-2: #e8ecef;
+    --line: #cfd6dc;
+    --ink: #10161b;
+    --ink-2: #46545f;
+    --ink-3: #6d7d89;
+    --accent: #0d7d99;
+    --accent-soft: #d3edf4;
+    --good: #1f8f5f;
+    --mid: #9a7113;
+    --low: #b1502f;
+    --shadow: 0 1px 2px rgba(16, 22, 27, .08), 0 4px 14px rgba(16, 22, 27, .05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #12171b;
+      --surface: #1a2127;
+      --surface-2: #232c34;
+      --line: #313d47;
+      --ink: #e4ecf1;
+      --ink-2: #a3b2bd;
+      --ink-3: #778794;
+      --accent: #4ec9e8;
+      --accent-soft: #123641;
+      --good: #63d29a;
+      --mid: #e0b64a;
+      --low: #e8836a;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 20px rgba(0, 0, 0, .28);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #12171b;
+    --surface: #1a2127;
+    --surface-2: #232c34;
+    --line: #313d47;
+    --ink: #e4ecf1;
+    --ink-2: #a3b2bd;
+    --ink-3: #778794;
+    --accent: #4ec9e8;
+    --accent-soft: #123641;
+    --good: #63d29a;
+    --mid: #e0b64a;
+    --low: #e8836a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 20px rgba(0, 0, 0, .28);
+  }
+
+  :root[data-theme="light"] {
+    --ground: #f2f4f6;
+    --surface: #ffffff;
+    --surface-2: #e8ecef;
+    --line: #cfd6dc;
+    --ink: #10161b;
+    --ink-2: #46545f;
+    --ink-3: #6d7d89;
+    --accent: #0d7d99;
+    --accent-soft: #d3edf4;
+    --good: #1f8f5f;
+    --mid: #9a7113;
+    --low: #b1502f;
+    --shadow: 0 1px 2px rgba(16, 22, 27, .08), 0 4px 14px rgba(16, 22, 27, .05);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    overflow-x: hidden; /* chip rows scroll inside themselves, never the page */
+    background: var(--ground);
+    color: var(--ink);
+    font-family: ui-sans-serif, "Segoe UI", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 20px 64px;
+  }
+
+  /* ---------- header ---------- */
+
+  .masthead {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 26px 0 16px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(22px, 4.2vw, 38px);
+    font-weight: 750;
+    letter-spacing: -.02em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+
+  .subline {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink-3);
+    line-height: 1.5;
+  }
+
+  .subline .size {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 14px;
+    font-weight: 650;
+    letter-spacing: .03em;
+    color: var(--accent);
+  }
+
+  .subline .sep { color: var(--line); }
+
+  /* The separator only makes sense when both halves share a line. */
+  @media (max-width: 720px) {
+    .subline { gap: 3px 8px; }
+    .subline .sep { display: none; }
+    .subline .when { flex-basis: 100%; }
+  }
+
+  .subline b {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    color: var(--ink-2);
+    font-weight: 600;
+  }
+
+  /* ---------- filters ---------- */
+
+  .controls {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--ground);
+    padding: 14px 0 12px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .row-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    min-width: 74px;
+  }
+
+  .chip {
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 6px 13px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: background .13s, color .13s, border-color .13s;
+  }
+
+  .chip:hover { border-color: var(--accent); color: var(--ink); }
+
+  .chip[aria-pressed="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--ground);
+  }
+
+  .chip .n {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 11.5px;
+    opacity: .68;
+    margin-left: 5px;
+  }
+
+  /* Opt-in for dealer stock — styled apart from the source/quantity chips so it
+     doesn't read as one of them. */
+  .chip-new {
+    border-style: dashed;
+    border-color: var(--mid);
+    color: var(--mid);
+  }
+
+  .chip-new:hover { border-color: var(--mid); color: var(--mid); }
+
+  /* "Kiti" expander — visually distinct from a real brand selection. */
+  .chip-more {
+    border-style: dashed;
+    font-weight: 650;
+  }
+
+  .chip-more[aria-expanded="true"] {
+    background: var(--surface-2);
+    border-style: solid;
+    color: var(--ink);
+  }
+
+  /* Each expanded brand list scrolls sideways beneath the toggle row. */
+  .brand-panel {
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 6px;
+    margin: 2px 0 2px 88px;
+    padding-bottom: 2px;
+  }
+
+  .brand-panel::-webkit-scrollbar { display: none; }
+
+  /* The pill showing the current brand selection, with a clear affordance. */
+  .brand-active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--ground);
+    gap: 7px;
+  }
+
+  .brand-active:hover { filter: brightness(1.08); }
+
+  .brand-active .clear {
+    font-size: 11px;
+    opacity: .8;
+  }
+
+  .hidden { display: none !important; }
+
+  .chip-new[aria-pressed="true"] {
+    background: var(--mid);
+    border-color: var(--mid);
+    border-style: solid;
+    color: var(--ground);
+  }
+
+  .sort-row { margin-left: auto; gap: 6px; }
+
+  select {
+    font: inherit;
+    font-size: 13.5px;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ---------- cards ---------- */
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(292px, 1fr));
+    gap: 12px;
+    margin-top: 18px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 15px 16px 14px;
+    display: flex;
+    flex-direction: column;
+    align-content: start;
+    gap: 11px;
+    box-shadow: var(--shadow);
+  }
+
+  /* Rows stretch cards to equal height; keep the slack below the actions rather
+     than opening a hole where a missing tread meter would have been. */
+  .card.no-tread .actions { margin-top: 0; }
+  .card.no-tread { justify-content: flex-start; }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .brand {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 2px;
+  }
+
+  .model {
+    font-size: 15px;
+    font-weight: 620;
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  .price {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 22px;
+    font-weight: 680;
+    letter-spacing: -.03em;
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  .price small {
+    display: block;
+    font-size: 10.5px;
+    font-weight: 500;
+    color: var(--ink-3);
+    letter-spacing: .04em;
+  }
+
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tag {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 5px;
+    background: var(--surface-2);
+    color: var(--ink-2);
+  }
+
+  .tag.set { background: var(--accent-soft); color: var(--accent); }
+
+  .tag.new {
+    background: transparent;
+    border: 1px solid var(--mid);
+    color: var(--mid);
+    font-family: inherit;
+  }
+
+  .tag.area {
+    font-family: inherit;
+    letter-spacing: .01em;
+    background: transparent;
+    border: 1px solid var(--line);
+  }
+
+  .addr {
+    margin: -3px 0 0;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--ink-3);
+  }
+
+  /* tread meter — severity encoded in bar width and hue */
+  .tread {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .bar {
+    flex: 1;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+
+  .bar i {
+    display: block;
+    height: 100%;
+    border-radius: 3px;
+    background: var(--fill, var(--ink-3));
+  }
+
+  .tread-n {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+    font-weight: 650;
+    color: var(--fill, var(--ink-3));
+    min-width: 62px;
+    text-align: right;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 4px;
+  }
+
+  .call {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 13px;
+    font-weight: 650;
+    letter-spacing: -.01em;
+    padding: 5px 9px;
+    border-radius: 6px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background .13s, color .13s;
+  }
+
+  .call:hover { background: var(--accent); color: var(--ground); }
+
+  /* Skelbiu hides numbers behind viewer verification — say so instead of a dead button. */
+  .no-phone {
+    font-size: 12px;
+    color: var(--ink-3);
+    white-space: nowrap;
+  }
+
+  .view {
+    margin-left: auto;
+    font-size: 12.5px;
+    font-weight: 650;
+    color: var(--ink-2);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 1px;
+    white-space: nowrap;
+    transition: color .13s, border-color .13s;
+  }
+
+  .view:hover { color: var(--accent); border-color: var(--accent); }
+
+  .view::after {
+    content: " ↗";
+    font-size: 11px;
+    opacity: .7;
+  }
+
+  .empty {
+    padding: 48px 16px;
+    text-align: center;
+    color: var(--ink-3);
+    border: 1px dashed var(--line);
+    border-radius: 12px;
+  }
+
+  footer {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--ink-3);
+    line-height: 1.65;
+  }
+
+  footer a { color: var(--accent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+
+  @media (max-width: 720px) {
+    .wrap { padding: 0 14px 40px; }
+
+    .masthead { padding: 18px 0 12px; }
+
+    /* Filters stay reachable while scrolling a long list on a phone. */
+    .controls {
+      padding: 10px 0 9px;
+      gap: 9px;
+      margin: 0 -14px;
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+
+    /* Each filter group scrolls sideways instead of wrapping into tall stacks —
+       except the last row, which must wrap so the sort control gets its own line. */
+    .controls .row { flex-wrap: nowrap; gap: 7px; }
+    .controls .row.wrap-row { flex-wrap: wrap; }
+
+    .controls > .row > .row[role="group"] {
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .controls > .row > .row[role="group"]::-webkit-scrollbar { display: none; }
+
+    .row-label {
+      min-width: 0;
+      flex: none;
+      font-size: 9.5px;
+      letter-spacing: .1em;
+    }
+
+    .chip {
+      flex: none;
+      font-size: 13px;
+      padding: 7px 12px;
+    }
+
+    .sort-row { width: 100%; margin-left: 0; }
+    .sort-row select { flex: 1; }
+
+    .brand-panel { margin-left: 0; }
+
+    .grid { grid-template-columns: 1fr; gap: 10px; }
+
+    .card { padding: 13px 14px 12px; gap: 10px; }
+
+    .model { font-size: 15.5px; }
+    .price { font-size: 21px; }
+
+    /* Phone number is the point of the page — give it a full-width tap target. */
+    .actions {
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 2px;
+    }
+
+    .call {
+      flex: 1 1 100%;
+      justify-content: center;
+      font-size: 15px;
+      padding: 11px 12px;
+      background: var(--accent);
+      color: var(--ground);
+    }
+
+    .no-phone { flex: 1; font-size: 12.5px; }
+
+    .view {
+      margin-left: auto;
+      font-size: 13px;
+      padding: 4px 0;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <h1>Naudotos žieminės padangos Kauno regione</h1>
+    <p class="subline">
+      <span class="size">205 / 55 R16 · lengviesiems</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span class="when">Surinkta: <b>2026-07-24</b> · <b id="total">0</b> skelbimų</span>
+    </p>
+  </header>
+
+  <section class="controls" aria-label="Filtrai">
+    <div class="row">
+      <span class="row-label" id="lbl-qty">Kiekis</span>
+      <div class="row" role="group" aria-labelledby="lbl-qty" id="qty"></div>
+    </div>
+    <div class="row">
+      <span class="row-label" id="lbl-src">Šaltinis</span>
+      <div class="row" role="group" aria-labelledby="lbl-src" id="sources"></div>
+    </div>
+    <div class="row brand-row">
+      <span class="row-label" id="lbl-brand">Gamintojas</span>
+      <button class="chip chip-more" id="mainToggle" aria-expanded="false" aria-controls="brandsMain">
+        Pagrindiniai ▾<span class="n" id="mainCount">0</span>
+      </button>
+      <button class="chip chip-more" id="restToggle" aria-expanded="false" aria-controls="brandsRest">
+        Kiti ▾<span class="n" id="restCount">0</span>
+      </button>
+      <button class="chip brand-active hidden" id="brandActive" aria-pressed="true"></button>
+    </div>
+    <div class="row brand-panel hidden" role="group" aria-label="Pagrindiniai gamintojai" id="brandsMain"></div>
+    <div class="row brand-panel hidden" role="group" aria-label="Kiti gamintojai" id="brandsRest"></div>
+    <div class="row wrap-row">
+      <button class="chip chip-new" id="newToggle" aria-pressed="false">
+        <span id="newLabel">Naujos gera kaina</span><span class="n" id="newCount">0</span>
+      </button>
+      <label class="row sort-row">
+        <span class="row-label" style="min-width:0">Rikiuoti</span>
+        <select id="sort">
+          <option value="price">Kaina, pigiausios</option>
+          <option value="price-desc">Kaina, brangiausios</option>
+          <option value="tread">Protektorius, geriausias</option>
+          <option value="set">Komplekto kaina</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>
+    Tik <b>Kaunas ir Kauno rajonas</b>. Kainos nurodytos <b>už vieną padangą</b>;
+    „Komplekto kaina" = kaina × turimas kiekis.
+    Vietovė nurodyta pagal pardavėjo adresą skelbimo tekste, o ne pagal portalo miesto žymą —
+    dalis „Kaunas" skelbimų iš tikrųjų yra Kauno rajone.
+    <b>Skelbiu.lt</b> telefono numerių nerodo neprisijungusiems, todėl tiems skelbimams
+    pateikiama tik nuoroda — numerį pamatysite atsidarę skelbimą; dalis Autogidas skelbimų
+    numerio taip pat nenurodo. Protektoriaus likutį pateikia tik Autoplius ir Autogidas.
+    Skelbimai, kuriuos tas pats pardavėjas paskelbė keliuose portaluose, sujungti į vieną.
+    Duomenys surinkti <b>2026-07-24</b> ir gali būti pasenę — prieš važiuojant paskambinkite.
+  </footer>
+</div>
+
+<script>
+  const ADS = [{"title":"Padangos","brand":null,"tread":null,"qty":4,"qtyLabel":"4 vnt.","price":10,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 1 val.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/padangos-205-55-r16-85982220.html"},{"title":"Continental 3-4mm","brand":"Continental","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":10,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"liepos 20 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/padangos-tikrai-geros-tolygiai-devetos-nera-guzuotos-83027810.html"},{"title":"Nokian","brand":"Nokian","tread":85,"qty":4,"qtyLabel":"4 vnt.","price":15,"phone":"+37063925458","area":"Kaunas","address":null,"condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/nokian-ziemines-205-55-r16-29695149.html"},{"title":"Viking SnowTech ll","brand":"Viking","tread":95,"qty":4,"qtyLabel":"4 vnt.","price":15,"phone":null,"area":"Kaunas","address":null,"condition":"used","source":"Autogidas","url":"https://autogidas.lt/skelbimas/viking-snowtech-ll-r16-ziemines-padangos-lengviesiems-122603182.html"},{"title":"Naujos padangos – platus pasirinkimas!","brand":null,"tread":null,"qty":5,"qtyLabel":">5 vnt.","price":15,"phone":null,"area":"Kaunas","address":null,"condition":"new","posted":"prieš 7 val.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/naujos-padangos-platus-pasirinkimas-78476232.html"},{"title":"Continental Winter contact ts870","brand":"Continental","tread":65,"qty":4,"qtyLabel":"4 vnt.","price":20,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/continental-winter-contact-ts870-ziemines-205-55-r16-31437766.html"},{"title":"Goodyear","brand":"Goodyear","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":20,"phone":"+37061195152","area":"Kaunas","address":null,"condition":"used","source":"Autogidas","url":"https://autogidas.lt/skelbimas/goodyear-r16-ziemines-padangos-lengviesiems-122310967.html"},{"title":"Continental žieminės 205/55 R16","brand":"Continental","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":20,"phone":"+37061195152","area":"Kaunas","address":null,"condition":"used","source":"Autogidas","url":"https://autogidas.lt/skelbimas/continental-ziemines-20555-r16-r16-ziemines-padangos-lengviesiems-122247430.html"},{"title":"Michelin žieminės 205/55 R16","brand":"Michelin","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":20,"phone":"+37061195152","area":"Kaunas","address":null,"condition":"used","source":"Autogidas","url":"https://autogidas.lt/skelbimas/michelin-ziemines-20555-r16-r16-ziemines-padangos-lengviesiems-122247403.html"},{"title":"Kitas žieminės 205/55 R16","brand":null,"tread":null,"qty":5,"qtyLabel":">5 vnt.","price":20,"phone":"+37061195152","area":"Kaunas","address":null,"condition":"used","source":"Autogidas","url":"https://autogidas.lt/skelbimas/ziemines-20555-r16-r16-ziemines-padangos-lengviesiems-122247382.html"},{"title":"Continental WinterContact ts870//2025m","brand":"Continental","tread":70,"qty":2,"qtyLabel":"2 vnt.","price":25,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/continental-wintercontact-ts870-2025m-ziemines-205-55-r16-31437786.html"},{"title":"Cooper WinterMasterSnow apie 6mm","brand":"Cooper","tread":70,"qty":1,"qtyLabel":"1 vnt.","price":25,"phone":"+37067099383","area":"Kauno r.","address":"Tauro g. 17, Šakiai, Domeikavos sen., Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/cooper-wintermastersnow-apie-6mm-ziemines-205-55-r16-2729745.html"},{"title":"Marangoni METEO HP apie 6mm","brand":"Marangoni","tread":70,"qty":1,"qtyLabel":"1 vnt.","price":25,"phone":"+37067099383","area":"Kauno r.","address":"Tauro g. 17, Šakiai, Domeikavos sen., Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/marangoni-meteo-hp-apie-6mm-ziemines-205-55-r16-2728245.html"},{"title":"Pirelli Cinturato winter2","brand":"Pirelli","tread":70,"qty":4,"qtyLabel":"4 vnt.","price":25,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/pirelli-cinturato-winter2-ziemines-205-55-r16-31465540.html"},{"title":"Pirelli Winter cinturato2","brand":"Pirelli","tread":70,"qty":2,"qtyLabel":"2 vnt.","price":25,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/pirelli-winter-cinturato2-ziemines-205-55-r16-31465550.html"},{"title":"Continental","brand":"Continental","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":25,"phone":"+37061195152","area":"Kaunas","address":null,"condition":"used","source":"Autogidas","url":"https://autogidas.lt/skelbimas/continental-r16-ziemines-padangos-lengviesiems-122298190.html"},{"title":"Kumho žieminės 205/55 R16","brand":"Kumho","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":25,"phone":"+37061195152","area":"Kaunas","address":null,"condition":"used","source":"Autogidas","url":"https://autogidas.lt/skelbimas/kumho-ziemines-20555-r16-r16-ziemines-padangos-lengviesiems-122247472.html"},{"title":"Rosava WQ 102","brand":"Rosava","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":25,"phone":null,"area":"Kaunas","address":null,"condition":"used","source":"Autogidas","url":"https://autogidas.lt/skelbimas/rosava-wq-102-r16-ziemines-padangos-lengviesiems-122581207.html"},{"title":"Kormoran","brand":"Kormoran","tread":85,"qty":4,"qtyLabel":"4 vnt.","price":25,"phone":null,"area":"Kaunas","address":null,"condition":"used","source":"Autogidas","url":"https://autogidas.lt/skelbimas/kormoran-r16-ziemines-padangos-lengviesiems-122608204.html"},{"title":"Hankook Winter I Cept RS 1 padanga","brand":"Hankook","tread":null,"qty":1,"qtyLabel":"1 vnt.","price":25,"phone":"+37062999956","area":"Kaunas","address":null,"condition":"used","source":"Alio","url":"https://www.alio.lt/skelbimai/r16-205-55-hankook-winter-i-cept-rs-1-padanga/ID58952580.html"},{"title":"Bridgestone WT-21 Kaip nauja 1 padanga","brand":"Bridgestone","tread":null,"qty":1,"qtyLabel":"1 vnt.","price":25,"phone":"+37062999956","area":"Kaunas","address":null,"condition":"used","source":"Alio","url":"https://www.alio.lt/skelbimai/r16-205-55-bridgestone-wt-21-kaip-nauja-1-padanga/ID58940932.html"},{"title":"Padangos","brand":null,"tread":null,"qty":2,"qtyLabel":"2 vnt.","price":25,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"birželio 21 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/padangos-85572450.html"},{"title":"Žieminės r16 padangos","brand":null,"tread":null,"qty":2,"qtyLabel":"2 vnt.","price":25,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"birželio 21 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/ziemines-r16-padangos-85573460.html"},{"title":"Bridgestone 5mm, 2019 metu","brand":"Bridgestone","tread":null,"qty":2,"qtyLabel":"2 vnt.","price":25,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"liepos 20 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/padangos-tikrai-geros-tolygiai-devetos-nera-guzuotos-81944178.html"},{"title":"Bridgestone 5mm","brand":"Bridgestone","tread":null,"qty":2,"qtyLabel":"2 vnt.","price":25,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"liepos 20 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/padangos-tikrai-geros-tolygiai-devetos-nera-guzuotos-81457831.html"},{"title":"Goodride 7mm, beveik naujos","brand":"Goodride","tread":null,"qty":2,"qtyLabel":"2 vnt.","price":25,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"liepos 20 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/padangos-tikrai-geros-tolygiai-devetos-nera-guzuotos-81475171.html"},{"title":"Bridgestone Blizzak LM-25 apie 6mm","brand":"Bridgestone","tread":70,"qty":1,"qtyLabel":"1 vnt.","price":30,"phone":"+37067099383","area":"Kauno r.","address":"Tauro g. 17, Šakiai, Domeikavos sen., Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/bridgestone-blizzak-lm-25-apie-6mm-ziemines-205-55-r16-3654627.html"},{"title":"Bridgestone Blizzak lm005","brand":"Bridgestone","tread":70,"qty":4,"qtyLabel":"4 vnt.","price":30,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/bridgestone-blizzak-lm005-ziemines-205-55-r16-31457328.html"},{"title":"Continental Winter contact ts870","brand":"Continental","tread":70,"qty":4,"qtyLabel":"4 vnt.","price":30,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/continental-winter-contact-ts870-ziemines-205-55-r16-31430412.html"},{"title":"Continental Winter contact ts870","brand":"Continental","tread":70,"qty":4,"qtyLabel":"4 vnt.","price":30,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/continental-winter-contact-ts870-ziemines-205-55-r16-31430420.html"},{"title":"Falken Eurowinter hs435","brand":"Falken","tread":75,"qty":1,"qtyLabel":"1 vnt.","price":30,"phone":"+37067099383","area":"Kauno r.","address":"Tauro g. 17, Šakiai, Domeikavos sen., Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/falken-eurowinter-hs435-ziemines-205-55-r16-3227411.html"},{"title":"Michelin Pilot Alpin apie 7mm","brand":"Michelin","tread":80,"qty":1,"qtyLabel":"1 vnt.","price":30,"phone":"+37067099383","area":"Kauno r.","address":"Tauro g. 17, Šakiai, Domeikavos sen., Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/michelin-pilot-alpin-apie-7mm-ziemines-205-55-r16-2728271.html"},{"title":"Pirelli Winter cinturato","brand":"Pirelli","tread":80,"qty":4,"qtyLabel":"4 vnt.","price":30,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/pirelli-winter-cinturato-ziemines-205-55-r16-31465884.html"},{"title":"Pirelli Winter cinturato2","brand":"Pirelli","tread":75,"qty":4,"qtyLabel":"4 vnt.","price":30,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/pirelli-winter-cinturato2-ziemines-205-55-r16-31465362.html"},{"title":"Pirelli Winter cinturato2","brand":"Pirelli","tread":75,"qty":2,"qtyLabel":"2 vnt.","price":30,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/pirelli-winter-cinturato2-ziemines-205-55-r16-31465366.html"},{"title":"Yokohama W.drive apie 6,5mm","brand":"Yokohama","tread":75,"qty":1,"qtyLabel":"1 vnt.","price":30,"phone":"+37067099383","area":"Kauno r.","address":"Tauro g. 17, Šakiai, Domeikavos sen., Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/yokohama-w-drive-apie-6-5mm-ziemines-205-55-r16-2728203.html"},{"title":"Barum Nord Polaris kaip nauja 1 padanga","brand":"Barum","tread":null,"qty":1,"qtyLabel":"1 vnt.","price":30,"phone":"+37062999956","area":"Kaunas","address":null,"condition":"new","source":"Alio","url":"https://www.alio.lt/skelbimai/r16-205-55-barum-nord-polaris-kaip-nauja-1-padanga/ID58941174.html"},{"title":"Bridgestone Blizzak Lm-25 apie 6mm, žieminės","brand":"Bridgestone","tread":null,"qty":1,"qtyLabel":"1 vnt.","price":30,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 7 val.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/protektoriaus-gylis-apie-6mm-greicio-indeksas-91h-galime-39691215.html"},{"title":"Continental ContiWinterContact ts8300","brand":"Continental","tread":90,"qty":4,"qtyLabel":"4 vnt.","price":32,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/continental-contiwintercontact-ts8300-ziemines-205-55-r16-31446800.html"},{"title":"Dunlop Winter sport5","brand":"Dunlop","tread":75,"qty":4,"qtyLabel":"4 vnt.","price":32,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/dunlop-winter-sport5-ziemines-205-55-r16-31456692.html"},{"title":"Bridgestone Blizzak lm005","brand":"Bridgestone","tread":85,"qty":4,"qtyLabel":"4 vnt.","price":35,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/bridgestone-blizzak-lm005-ziemines-205-55-r16-31457152.html"},{"title":"Continental Winter contact ts870","brand":"Continental","tread":80,"qty":2,"qtyLabel":"2 vnt.","price":35,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/continental-winter-contact-ts870-ziemines-205-55-r16-31430298.html"},{"title":"Continental WinterContact ts870","brand":"Continental","tread":80,"qty":4,"qtyLabel":"4 vnt.","price":35,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/continental-wintercontact-ts870-ziemines-205-55-r16-31430280.html"},{"title":"Dunlop Winter sport5","brand":"Dunlop","tread":80,"qty":2,"qtyLabel":"2 vnt.","price":35,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/dunlop-winter-sport5-ziemines-205-55-r16-31456730.html"},{"title":"Goodyear Ultragrip9+","brand":"Goodyear","tread":85,"qty":4,"qtyLabel":"4 vnt.","price":35,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/goodyear-ultragrip9-ziemines-205-55-r16-31438776.html"},{"title":"Goodyear Ultragrip9+","brand":"Goodyear","tread":85,"qty":2,"qtyLabel":"2 vnt.","price":35,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/goodyear-ultragrip9-ziemines-205-55-r16-31438788.html"},{"title":"Hankook W440 WINTER apie 9mm","brand":"Hankook","tread":100,"qty":1,"qtyLabel":"1 vnt.","price":35,"phone":"+37067099383","area":"Kauno r.","address":"Tauro g. 17, Šakiai, Domeikavos sen., Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/hankook-w440-winter-apie-9mm-ziemines-205-55-r16-2728210.html"},{"title":"Matador Adhesa Evo apie 9mm","brand":"Matador","tread":100,"qty":1,"qtyLabel":"1 vnt.","price":35,"phone":"+37067099383","area":"Kauno r.","address":"Tauro g. 17, Šakiai, Domeikavos sen., Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/matador-adhesa-evo-apie-9mm-ziemines-205-55-r16-2729702.html"},{"title":"Michelin ALPIN apie 8mm","brand":"Michelin","tread":90,"qty":1,"qtyLabel":"1 vnt.","price":35,"phone":"+37067099383","area":"Kauno r.","address":"Tauro g. 17, Šakiai, Domeikavos sen., Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/michelin-alpin-apie-8mm-ziemines-205-55-r16-2729684.html"},{"title":"Pirelli Cinturato Winter2","brand":"Pirelli","tread":85,"qty":4,"qtyLabel":"4 vnt.","price":35,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/pirelli-cinturato-winter2-ziemines-205-55-r16-31465286.html"},{"title":"Pirelli Cinturato winter2","brand":"Pirelli","tread":85,"qty":2,"qtyLabel":"2 vnt.","price":35,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/pirelli-cinturato-winter2-ziemines-205-55-r16-31465290.html"},{"title":"Pirelli SOTTOZERO WINTER 210 apie 7,5m","brand":"Pirelli","tread":85,"qty":1,"qtyLabel":"1 vnt.","price":35,"phone":"+37067099383","area":"Kauno r.","address":"Tauro g. 17, Šakiai, Domeikavos sen., Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/pirelli-sottozero-winter-210-apie-7-5m-ziemines-205-55-r16-3145347.html"},{"title":"Roadstone Euro-Win apie 7mm","brand":"Roadstone","tread":80,"qty":1,"qtyLabel":"1 vnt.","price":35,"phone":"+37067099383","area":"Kauno r.","address":"Tauro g. 17, Šakiai, Domeikavos sen., Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/roadstone-euro-win-apie-7mm-ziemines-205-55-r16-2729719.html"},{"title":"Semperit SPEED-GRIP apie 7mm","brand":"Semperit","tread":null,"qty":1,"qtyLabel":"1 vnt.","price":35,"phone":"+37067099383","area":"Kauno r.","address":"Tauro g. 17, Šakiai, Domeikavos sen., Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/semperit-speed-grip-apie-7mm-ziemines-205-55-r16-13279905.html"},{"title":"Sportiva SnowWin apie 7mm","brand":"Sportiva","tread":80,"qty":1,"qtyLabel":"1 vnt.","price":35,"phone":"+37067099383","area":"Kauno r.","address":"Tauro g. 17, Šakiai, Domeikavos sen., Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/sportiva-snowwin-apie-7mm-ziemines-205-55-r16-2729726.html"},{"title":"Uniroyal MS PLUS 44 apie 7mm","brand":"Uniroyal","tread":80,"qty":1,"qtyLabel":"1 vnt.","price":35,"phone":"+37067099383","area":"Kauno r.","address":"Tauro g. 17, Šakiai, Domeikavos sen., Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/uniroyal-ms-plus-44-apie-7mm-ziemines-205-55-r16-2729647.html"},{"title":"BF Goodrich 2021m 9mm 95%G.Force Winter2","brand":"BF Goodrich","tread":95,"qty":4,"qtyLabel":"4 vnt.","price":36,"phone":"+37067193165","area":"Kaunas","address":null,"condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/bf-goodrich-2021m-9mm-95-g-force-winter2-ziemines-205-55-r16-29588687.html"},{"title":"Continental Winter contact ts870","brand":"Continental","tread":85,"qty":4,"qtyLabel":"4 vnt.","price":37,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/continental-winter-contact-ts870-ziemines-205-55-r16-31429892.html"},{"title":"Continental Winter contact ts870","brand":"Continental","tread":85,"qty":4,"qtyLabel":"4 vnt.","price":37,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/continental-winter-contact-ts870-ziemines-205-55-r16-31429894.html"},{"title":"Bridgestone Blizzak lm005","brand":"Bridgestone","tread":85,"qty":4,"qtyLabel":"4 vnt.","price":38,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/bridgestone-blizzak-lm005-ziemines-205-55-r16-31457226.html"},{"title":"Dunlop Winter sport5","brand":"Dunlop","tread":95,"qty":4,"qtyLabel":"4 vnt.","price":38,"phone":"+37062831199","area":"Kauno r.","address":"Technikos g. 10, Ilgakiemis, Kauno r.","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/dunlop-winter-sport5-ziemines-205-55-r16-31456642.html"},{"title":"-Kita- Fronway 868,komplektas-150e","brand":"Fronway","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":38,"phone":"+37064511280","area":"Kaunas","address":"Elektrėnų g. 1D (Urmas), Kaunas","condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/kita-fronway-868-komplektas-150e-ziemines-205-55-r16-21796066.html"},{"title":"Semperit 95% Winter","brand":"Semperit","tread":95,"qty":4,"qtyLabel":"4 vnt.","price":38,"phone":"+37067193165","area":"Kaunas","address":null,"condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/semperit-95-winter-ziemines-205-55-r16-29679719.html"},{"title":"Agi AG-OPTIMA NORTH A3","brand":"AGI","tread":100,"qty":4,"qtyLabel":"4 vnt.","price":38,"phone":null,"area":"Kaunas","address":null,"condition":"new","source":"Autogidas","url":"https://autogidas.lt/skelbimas/agi-ag-optima-north-a3-r16-ziemines-padangos-lengviesiems-122609464.html"},{"title":"Agi ALPIN MASTER 4 TECHN","brand":"AGI","tread":100,"qty":4,"qtyLabel":"4 vnt.","price":38,"phone":"+37064418496","area":"Kaunas","address":null,"condition":"new","source":"Autogidas","url":"https://autogidas.lt/skelbimas/agi-alpin-master-4-techn-r16-ziemines-padangos-lengviesiems-122638786.html"},{"title":"Parduodamos ziemines padangos AG-OPTIMA NORTH A3 Ismatavimai 205\\*55-R16 , Kaunas","brand":null,"tread":null,"qty":4,"qtyLabel":"4 vnt.","price":38,"phone":"+37062152484","area":"Kaunas","address":null,"condition":"new","source":"Alio","url":"https://www.alio.lt/skelbimai/parduodamos-ziemines-padangos-ag-optima-north-a3.......ismatavimai-205*55-r16......../ID69274993.html"},{"title":"Parduodamos ziemines M+S padangos","brand":null,"tread":null,"qty":4,"qtyLabel":"4 vnt.","price":38,"phone":"+37064418496","area":"Kaunas","address":null,"condition":"new","source":"Alio","url":"https://www.alio.lt/skelbimai/parduodamos-ziemines-m+s-padangos-alpin-master-4-technic-.....ismatavimai-205*55-r16....../ID69275003.html"},{"title":"Parduodamos universaliosios padangos","brand":null,"tread":null,"qty":4,"qtyLabel":"4 vnt.","price":38,"phone":"+37064418496","area":"Kaunas","address":null,"condition":"new","source":"Alio","url":"https://www.alio.lt/skelbimai/parduodamos-universaliosios-padangos-alpin-master-4-technic-........205-55-r16/ID69274893.html"},{"title":"Parduodamos naujos ziemines padangos 205 55 r16 M+s","brand":"AGI","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":38,"phone":null,"area":"Kaunas","address":null,"condition":"new","posted":"prieš 9 val.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/parduodamos-naujos-ziemines-padangos-205-55r16-m-s-60102708.html"},{"title":"Gislaved 2020m 8-9mm 95% EuroFrost6","brand":"Gislaved","tread":95,"qty":4,"qtyLabel":"4 vnt.","price":39,"phone":"+37067193165","area":"Kaunas","address":null,"condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/gislaved-2020m-8-9mm-95-eurofrost6-ziemines-205-55-r16-22402096.html"},{"title":"Continental 7-8mm, beveik naujos 2020 metu","brand":"Continental","tread":null,"qty":2,"qtyLabel":"2 vnt.","price":40,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"liepos 20 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/padangos-tikrai-geros-tolygiai-devetos-nera-guzuotos-83139238.html"},{"title":"Dunlop","brand":"Dunlop","tread":90,"qty":4,"qtyLabel":"4 vnt.","price":45,"phone":null,"area":"Kaunas","address":null,"condition":"used","source":"Autogidas","url":"https://autogidas.lt/skelbimas/dunlop-r16-ziemines-padangos-lengviesiems-122573101.html"},{"title":"Žieminės padangos su ratlankiais","brand":"Debica","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":45,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"kovo 20 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/ziemines-padangos-su-ratlankiais-205-55-r16-82260544.html"},{"title":"Continental Contiwintercontact Ts810s","brand":"Continental","tread":null,"qty":1,"qtyLabel":"1 vnt.","price":45,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 7 val.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/nauja-padanga-greicio-indeksas-91h-galime-pristatyti-i-bet-39691587.html"},{"title":"Continental Contiwintercontact Ts830 apie9","brand":"Continental","tread":null,"qty":1,"qtyLabel":"1 vnt.","price":45,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 7 val.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/protektoriaus-gylis-apie-9mm-praktiskai-nauja-padanga-39691591.html"},{"title":"Bridgestone Blizzak Lm-35 apie 8,5mm","brand":"Bridgestone","tread":null,"qty":1,"qtyLabel":"1 vnt.","price":45,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 7 val.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/protektoriaus-gylis-apie-8-5mm-praktiskai-nauja-padanga-39691243.html"},{"title":"Firestone Firehawk 2 EVO apie 9mm, žieminės","brand":"Firestone","tread":null,"qty":1,"qtyLabel":"1 vnt.","price":45,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 7 val.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/protektoriaus-gylis-apie-9mm-praktiskai-nauja-padanga-39692011.html"},{"title":"Nokian WR D5 9mm 98% 2020m","brand":"Nokian","tread":null,"qty":2,"qtyLabel":"2 vnt.","price":47,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 1 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/nokian-wr-d5-ziemines-padangos-8-9mm-gylio-protektorius-95-82108500.html"},{"title":"Hi Fly Win-turi 216","brand":"Hi Fly","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":47,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 1 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/naujos-padangos-new-tires-hi-fly-win-turi-216-ismatavimai-81223685.html"},{"title":"Hi Fly Win-turi 216","brand":"Hi Fly","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":50,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 1 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/gamintojas-manufacturer-hi-fly-modelis-model-win-turi-216-76944109.html"},{"title":"Continental Winter Ts860 8mm 2019m, žieminės","brand":"Continental","tread":null,"qty":2,"qtyLabel":"2 vnt.","price":52,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 1 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/continental-wintercontact-ts860-ziemines-padangos-r16-205-55-51251587.html"},{"title":"Padangos automobiliams","brand":null,"tread":null,"qty":5,"qtyLabel":">5 vnt.","price":53,"phone":null,"area":"Kaunas","address":null,"condition":"new","posted":"prieš 10 val.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/padangos-automobiliams-13911921.html"},{"title":"Winrun Wr22","brand":"Winrun","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":55,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 1 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/gamintojas-manufacturer-winrun-modelis-model-wr22-76877087.html"},{"title":"Sailun Ice Blazer Alpine+","brand":"Sailun","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":58,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 1 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/gamintojas-manufacturer-sailun-modelis-model-ice-blazer-76857453.html"},{"title":"Goodyear","brand":"Goodyear","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":60,"phone":"+37067497394","area":"Kaunas","address":null,"condition":"used","source":"Autoplius","url":"https://autoplius.lt/skelbimai/goodyear-ziemines-205-55-r16-31427290.html"},{"title":"Padangos","brand":"Goodyear","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":60,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"liepos 20 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/padangos-86005300.html"},{"title":"Hi Fly Win-turi 212","brand":"Hi Fly","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":60,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 1 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/gamintojas-manufacturer-hi-fly-modelis-model-win-turi-212-58431077.html"},{"title":"Barum Polaris 6","brand":"Barum","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":65,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 1 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/gamintojas-manufacturer-barum-modelis-model-polaris-6-76687797.html"},{"title":"Nankang Ice Active 2","brand":"Nankang","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":65,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 1 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/gamintojas-manufacturer-nankang-modelis-model-ice-active-2-58029393.html"},{"title":"Nexen Winguard Snow G3 Wh21","brand":"Nexen","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":75,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 1 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/nexen-winguard-snow-g3-wh21-205-55-r16-91t-didelis-nauju-56582263.html"},{"title":"Sava Eskimo Hp2","brand":"Sava","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":80,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 1 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/sava-eskimo-hp2-205-55-r16-91h-didelis-nauju-padangu-56582615.html"},{"title":"Žieminiai ratai","brand":"Fulda","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":90,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"birželio 16 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/zieminiai-ratai-85490616.html"},{"title":"Pirelli Cinturato Winter Wtc2","brand":"Pirelli","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":120,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"prieš 1 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/gamintojas-manufacturer-pirelli-modelis-model-cinturato-76687655.html"},{"title":"Parduodu žieminių padangų su ratlankiais komplektą","brand":"Bridgestone","tread":null,"qty":4,"qtyLabel":"4 vnt.","price":215,"phone":null,"area":"Kaunas","address":null,"condition":"used","posted":"liepos 18 d.","source":"Skelbiu","url":"https://www.skelbiu.lt/skelbimai/parduodu-zieminiu-padangu-su-ratlankiais-komplekta-82518029.html"}];
+
+  const QTY_FILTERS = [
+    { id: "all", label: "Visi", test: () => true },
+    { id: "4", label: "Komplektas (4)", test: a => a.qty >= 4 },
+    { id: "2", label: "Pora (2+)", test: a => a.qty >= 2 },
+    { id: "phone", label: "Su telefonu", test: a => !!a.phone },
+  ];
+
+  // New tires are dealer stock, so the page shows used by default and switches
+  // to the new-only list when the toggle is pressed.
+  const state = { qty: "all", source: "all", brand: "all", sort: "price", view: "used" };
+
+  const UNKNOWN = "Kita";
+  const brandOf = a => a.brand || UNKNOWN;
+
+  // Both brand dropdowns start collapsed.
+  let mainOpen = false;
+  let restOpen = false;
+
+  const el = id => document.getElementById(id);
+  const fmtPhone = p => p.replace(/^\+370(\d{3})(\d{2})(\d{3})$/, "+370 $1 $2 $3");
+
+  function treadColor(t) {
+    if (t === null) return "var(--ink-3)";
+    if (t >= 80) return "var(--good)";
+    if (t >= 60) return "var(--mid)";
+    return "var(--low)";
+  }
+
+  function sourceMatches(a) {
+    return state.source === "all" || a.source === state.source;
+  }
+
+  function condMatches(a) {
+    return state.view === "new" ? a.condition === "new" : a.condition !== "new";
+  }
+
+  function brandMatches(a) {
+    return state.brand === "all" || brandOf(a) === state.brand;
+  }
+
+  function visible() {
+    const qf = QTY_FILTERS.find(q => q.id === state.qty);
+    let out = ADS.filter(a => condMatches(a) && sourceMatches(a) && brandMatches(a) && qf.test(a));
+    const by = {
+      "price": (x, y) => x.price - y.price,
+      "price-desc": (x, y) => y.price - x.price,
+      "tread": (x, y) => (y.tread ?? -1) - (x.tread ?? -1),
+      "set": (x, y) => x.price * x.qty - y.price * y.qty,
+    };
+    return out.sort(by[state.sort]);
+  }
+
+  function renderChips() {
+    const pool = ADS.filter(condMatches);
+
+    // Source counts respect the active brand; brand counts respect the active
+    // source. Each filter's own dimension is left out of its own tally so the
+    // numbers stay meaningful after a selection.
+    const srcCounts = {};
+    for (const a of pool) if (brandMatches(a)) srcCounts[a.source] = (srcCounts[a.source] || 0) + 1;
+    const sources = [
+      { id: "all", label: "Visi", n: pool.filter(brandMatches).length },
+      ...Object.keys(srcCounts).sort().map(s => ({ id: s, label: s, n: srcCounts[s] })),
+    ];
+    el("sources").innerHTML = sources.map(s =>
+      `<button class="chip" data-source="${s.id}" aria-pressed="${state.source === s.id}">` +
+      `${s.label}<span class="n">${s.n}</span></button>`
+    ).join("");
+
+    const brandCounts = {};
+    for (const a of pool) if (sourceMatches(a)) {
+      const b = brandOf(a);
+      brandCounts[b] = (brandCounts[b] || 0) + 1;
+    }
+    // Most tires first, then alphabetical; "Kita" always last.
+    const sortBrands = (x, y) => {
+      if (x === UNKNOWN) return 1;
+      if (y === UNKNOWN) return -1;
+      return brandCounts[y] - brandCounts[x] || x.localeCompare(y);
+    };
+    const allBrands = Object.keys(brandCounts).sort(sortBrands);
+
+    // "Pagrindiniai" = brands with more than one ad; "Kiti" = single-ad brands
+    // plus the generic "Kita" bucket. Each is its own dropdown.
+    const main = allBrands.filter(b => brandCounts[b] > 1 && b !== UNKNOWN);
+    const rest = allBrands.filter(b => brandCounts[b] <= 1 || b === UNKNOWN);
+    const sum = list => list.reduce((s, b) => s + brandCounts[b], 0);
+
+    // Auto-open the panel that holds the current selection.
+    if (main.includes(state.brand)) mainOpen = true;
+    if (rest.includes(state.brand)) restOpen = true;
+
+    const chip = (id, label, n) =>
+      `<button class="chip" data-brand="${id}" aria-pressed="${state.brand === id}">` +
+      `${label}<span class="n">${n}</span></button>`;
+
+    // Row 1: the two dropdown toggles + the active-brand indicator.
+    const mainT = el("mainToggle"), restT = el("restToggle"), active = el("brandActive");
+    mainT.setAttribute("aria-expanded", String(mainOpen));
+    mainT.innerHTML = `Pagrindiniai ${mainOpen ? "▲" : "▾"}<span class="n">${sum(main)}</span>`;
+    mainT.classList.toggle("hidden", !main.length);
+
+    restT.setAttribute("aria-expanded", String(restOpen));
+    restT.innerHTML = `Kiti ${restOpen ? "▲" : "▾"}<span class="n">${sum(rest)}</span>`;
+    restT.classList.toggle("hidden", !rest.length);
+
+    if (state.brand === "all") {
+      active.classList.add("hidden");
+    } else {
+      const lbl = state.brand === UNKNOWN ? "Kita" : state.brand;
+      active.innerHTML = `${lbl}<span class="clear" aria-hidden="true">✕</span>`;
+      active.classList.remove("hidden");
+    }
+
+    // The two expandable panels, each with a leading "Visi" option.
+    const mainPanel = el("brandsMain");
+    if (main.length && mainOpen) {
+      mainPanel.innerHTML = chip("all", "Visi", pool.filter(sourceMatches).length)
+        + main.map(b => chip(b, b, brandCounts[b])).join("");
+      mainPanel.classList.remove("hidden");
+    } else {
+      mainPanel.innerHTML = "";
+      mainPanel.classList.add("hidden");
+    }
+
+    const restPanel = el("brandsRest");
+    if (rest.length && restOpen) {
+      restPanel.innerHTML = chip("all", "Visi", pool.filter(sourceMatches).length)
+        + rest.map(b => chip(b, b === UNKNOWN ? "Kita" : b, brandCounts[b])).join("");
+      restPanel.classList.remove("hidden");
+    } else {
+      restPanel.innerHTML = "";
+      restPanel.classList.add("hidden");
+    }
+
+    el("qty").innerHTML = QTY_FILTERS.map(q => {
+      const n = pool.filter(a => sourceMatches(a) && brandMatches(a) && q.test(a)).length;
+      return `<button class="chip" data-qty="${q.id}" aria-pressed="${state.qty === q.id}">` +
+        `${q.label}<span class="n">${n}</span></button>`;
+    }).join("");
+
+    const showingNew = state.view === "new";
+    el("newToggle").setAttribute("aria-pressed", String(showingNew));
+    el("newLabel").textContent = showingNew ? "← Naudotos padangos" : "Naujos gera kaina";
+    el("newCount").textContent = showingNew
+      ? ADS.filter(a => a.condition !== "new").length
+      : ADS.filter(a => a.condition === "new").length;
+  }
+
+  function renderGrid(list) {
+    const grid = el("grid");
+    if (!list.length) {
+      grid.innerHTML = `<p class="empty">Pagal šiuos filtrus skelbimų nėra. Pabandykite kitą miestą arba kiekį.</p>`;
+      return;
+    }
+
+    grid.innerHTML = list.map(a => {
+      const fill = treadColor(a.tread);
+      const width = a.tread === null ? 0 : a.tread;
+      const model = a.brand
+        ? (a.title.replace(new RegExp("^" + a.brand + "\\s*", "i"), "") || a.title)
+        : a.title;
+      const setPrice = a.qty >= 4 ? `<span class="tag set">4 vnt. = ${a.price * 4} €</span>` : "";
+      const isNew = a.condition === "new";
+
+      return `<article class="card${a.tread === null ? " no-tread" : ""}" style="--fill:${fill}">
+        <div class="card-top">
+          <div>
+            ${a.brand ? `<div class="brand">${a.brand}</div>` : ""}
+            <div class="model">${model}</div>
+          </div>
+          <div class="price">${a.price} €<small>už vnt.</small></div>
+        </div>
+        <div class="facts">
+          <span class="tag area">${a.area}</span>
+          <span class="tag">${a.qtyLabel || a.qty + " vnt."}</span>
+          ${isNew ? `<span class="tag new">Naujos</span>` : ""}
+          ${setPrice}
+        </div>
+        ${a.address ? `<p class="addr">${a.address}</p>` : ""}
+        ${a.tread === null ? "" : `<div class="tread">
+          <span class="bar"><i style="width:${width}%"></i></span>
+          <span class="tread-n">${a.tread} % likutis</span>
+        </div>`}
+        <div class="actions">
+          ${a.phone
+            ? `<a class="call" href="tel:${a.phone}">${fmtPhone(a.phone)}</a>`
+            : `<span class="no-phone">tel. tik portale</span>`}
+          <a class="view" href="${a.url}" target="_blank" rel="noopener">${a.source}</a>
+        </div>
+      </article>`;
+    }).join("");
+  }
+
+  function render() {
+    const list = visible();
+    renderChips();
+    renderGrid(list);
+    el("total").textContent = ADS.filter(condMatches).length;
+  }
+
+  el("sources").addEventListener("click", e => {
+    const b = e.target.closest("[data-source]");
+    if (!b) return;
+    state.source = b.dataset.source;
+    // The chosen brand may not exist within the new source.
+    if (state.brand !== "all" && !ADS.some(a => condMatches(a) && sourceMatches(a) && brandOf(a) === state.brand)) {
+      state.brand = "all";
+    }
+    render();
+  });
+
+  function pickBrand(e) {
+    const b = e.target.closest("[data-brand]");
+    if (!b) return;
+    state.brand = b.dataset.brand;
+    render();
+  }
+  el("brandsMain").addEventListener("click", pickBrand);
+  el("brandsRest").addEventListener("click", pickBrand);
+
+  el("mainToggle").addEventListener("click", () => { mainOpen = !mainOpen; render(); });
+  el("restToggle").addEventListener("click", () => { restOpen = !restOpen; render(); });
+
+  // The active-brand pill clears the selection.
+  el("brandActive").addEventListener("click", () => { state.brand = "all"; render(); });
+
+  el("qty").addEventListener("click", e => {
+    const b = e.target.closest("[data-qty]");
+    if (!b) return;
+    state.qty = b.dataset.qty;
+    render();
+  });
+
+  el("newToggle").addEventListener("click", () => {
+    state.view = state.view === "new" ? "used" : "new";
+    // A source or brand picked in one view may not exist in the other.
+    state.source = "all";
+    state.brand = "all";
+    render();
+  });
+
+  el("sort").addEventListener("change", e => {
+    state.sort = e.target.value;
+    render();
+  });
+
+  render();
+</script>
+
+</body>
+</html>
