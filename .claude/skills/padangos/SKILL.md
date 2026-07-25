@@ -88,12 +88,23 @@ Every ad in `.firecrawl/merged.json` (and inlined into the HTML) is:
   address,             // seller street address or null
   condition,           // "used" | "new"
   source,              // "Autoplius" | "Autogidas" | "Alio" | "Skelbiu"
+  year,                // production year (int) or null — best-effort, from title
   url,                 // ad link — ALWAYS present, it is the fallback CTA
 }
 ```
 
 Prices are per single tire. "Komplekto kaina" = `price × qty`. Every ad also has
 `season` (`"winter"` | `"all-season"`).
+
+**`year` is best-effort and usually null.** The portals expose no per-ad
+production-year field (Autoplius' "Pagaminimo metai" is only a search dropdown),
+so the one reliable signal is when a seller writes it into the *title*
+("Barum Polaris 5 2022m", "Bridgestone 5mm, 2019 metų"). `merge.js`
+`yearFromTitle()` parses it (2010–2026 + m/metų/metai suffix, anchored so sizes
+`R16`/`205/55` and prices never match) — ~16% of ads carry it. The viewer shows a
+`2021 m.` card badge when set and a **"Su metais"** filter chip (a QTY_FILTERS
+entry, `test: a => !!a.year`). Do NOT try to read year from DOT codes or ad
+bodies — coverage is ~1 ad and the text is too noisy.
 
 ## Seasons (switchable layers)
 
@@ -142,6 +153,13 @@ whenever a count changes unexpectedly or a card looks wrong.
   be mistaken for the title, and `\*` escapes leak into sizes. The parsers have
   targeted cleanups; when a title looks broken, fix the cleanup rather than
   dropping the ad. See references/tasks.md "Title extraction gotchas".
+  - **Word-final emphasis split** (`Padango _s_ 205` → "Padango s"): Skelbiu also
+    emphasises a matched term that is the *last letter of a word*, and since it is
+    followed by a space + non-letter, the mid-word rejoin rules (which expect a
+    letter after the fragment) never fire. `parse-skelbiu.js` has a fourth rejoin
+    rule for the word-final case: `(?<=\p{L}) _(\p{Ll}{1,2})_(?=\s|[).,]|$)` → glue
+    the 1–2-char suffix back on. **Symptom:** a card shows "Padango s" /
+    "Naujo s" / "…ratlankiai s". Fix by tightening that rule, never by dropping.
 - **Skelbiu "Naudota" mislabels new dealer stock.** `condition` is NOT simply the
   portal's Naudota/Nauja field. Some Skelbiu dealers list genuinely-new tires
   under the "Naudota" category while the title/URL shout "naujos" (+ a recent
