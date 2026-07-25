@@ -473,6 +473,9 @@
     color: var(--ink);
     cursor: pointer;
   }
+  /* The native open option list is OS-rendered; some browsers honour this to
+     keep the dropdown text in line with the rest of the page. */
+  select option { font-size: 13px; }
 
   :focus-visible {
     outline: 2px solid var(--accent);
@@ -922,10 +925,10 @@
       <label class="sort-inline">
         <span class="row-label" style="min-width:0">Rikiuoti</span>
         <select id="sort">
-          <option value="price">Kaina, pigiausios</option>
-          <option value="price-desc">Kaina, brangiausios</option>
-          <option value="tread">Protektorius, geriausias</option>
-          <option value="set">Komplekto kaina</option>
+          <option value="price">Pigiausios</option>
+          <option value="price-desc">Brangiausios</option>
+          <option value="tread">Protektorius</option>
+          <option value="set">Komplektas</option>
         </select>
       </label>
     </div>
