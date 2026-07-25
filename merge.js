@@ -123,6 +123,19 @@ const all = [...autoplius, ...agUnique, ...alUnique, ...skUnique]
 // Normalise / backfill the brand so the filter has clean, deduplicated makes.
 for (const a of all) a.brand = detectBrand(a.title, a.brand);
 
+// Best-effort production year, read out of the title only. The portals never
+// expose a structured "Pagaminimo metai" field per ad (it is only a search-form
+// dropdown), so the one reliable signal is when a seller writes it into the title
+// ("Barum Polaris 5 2022m", "Bridgestone 5mm, 2019 metų"). Roughly ~16% of ads
+// carry it; the rest stay null and the viewer simply shows no year. Anchored on a
+// plausible 2010–2026 range + an m/metų/metai suffix so sizes (R16, 205/55) and
+// prices never match.
+const yearFromTitle = t => {
+  const m = (t || '').match(/\b(20(?:1[0-9]|2[0-6]))\s*m(?:\.|etų|etu|etai)?\b/i);
+  return m ? +m[1] : null;
+};
+for (const a of all) a.year = yearFromTitle(a.title);
+
 // The viewer stacks seasons as switchable layers, so each ad carries its season.
 // SEASON env var selects which layer this run builds (default winter); the parsed
 // JSON inputs are season-specific too (see run-all.sh SEASON handling).

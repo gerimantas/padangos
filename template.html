@@ -606,6 +606,13 @@
 
   .tag.set { background: var(--accent-soft); color: var(--accent); }
 
+  /* Production year, when the seller stated it in the title (see merge.js). */
+  .tag.year {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink-2);
+  }
+
   .tag.new {
     background: transparent;
     border: 1px solid var(--mid);
@@ -1000,6 +1007,14 @@
     </p>
 
     <p>
+      <b>„Su metais" filtras.</b> Kai pardavėjas skelbimo pavadinime nurodo
+      padangų <b>pagaminimo metus</b>, kortelėje rodoma žyma (pvz. <b>2021 m.</b>).
+      Filtras <b>„Su metais"</b> palieka tik tokius skelbimus. Metus nurodo tik
+      dalis pardavėjų, todėl daugumos skelbimų amžius lieka nežinomas — jei metai
+      svarbūs, būtinai pasitikslinkite pas pardavėją.
+    </p>
+
+    <p>
       <b>Kainos ir vietovė.</b> Kainos nurodytos <b>už vieną padangą</b>;
       „Komplekto kaina" = kaina × turimas kiekis. Vietovė imama iš pardavėjo
       adreso skelbimo tekste, o ne iš portalo miesto žymos — dalis „Kaunas"
@@ -1040,6 +1055,9 @@
     { id: "4", label: "Komplektas (4)", test: a => a.qty >= 4 },
     { id: "2", label: "Pora (2+)", test: a => a.qty >= 2 },
     { id: "phone", label: "Su telefonu", test: a => !!a.phone },
+    // Only ~16% of ads state a production year (parsed from the title in merge.js);
+    // this chip narrows to those, for buyers who care about tire age.
+    { id: "year", label: "Su metais", test: a => !!a.year },
   ];
 
   // New tires are dealer stock, so the page shows used by default and switches
@@ -1257,6 +1275,7 @@
         <div class="facts">
           <span class="tag area">${a.area}</span>
           <span class="tag">${a.qtyLabel || a.qty + " vnt."}</span>
+          ${a.year ? `<span class="tag year">${a.year} m.</span>` : ""}
           ${isNew ? `<span class="tag new">Naujos</span>` : ""}
           ${setPrice}
         </div>

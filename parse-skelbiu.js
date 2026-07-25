@@ -39,6 +39,12 @@ for (const m of text.matchAll(RE)) {
       .replace(/(?<=\w)_([a-z]{1,3})_(?=\w)/gi, '$1')          // B_r_idgestone
       .replace(/(?<=\w) _([a-z]{1,3})_ (?=[a-z])/gi, '$1')     // B _r_ idgestone
       .replace(/(?<=^|[\s(])_([a-z]{1,3})_ (?=[a-z]{2})/gi, '$1') // _R_ oadstone
+      // Word-final split: the emphasised fragment is the word's own tail, so it is
+      // followed by a space + non-letter (digit / punctuation / end), not more
+      // letters — "Padango _s_ 205" -> "Padangos 205", "Naujo _s_" -> "Naujos".
+      // Restricted to 1–2 chars so it only rejoins a broken suffix, never a real
+      // standalone token.
+      .replace(/(?<=\p{L}) _(\p{Ll}{1,2})_(?=\s|[).,]|$)/gu, '$1')
       .replace(/\\([*_])/g, '$1')
       .replace(/[_*]/g, '')
       .replace(/\s+/g, ' ')
